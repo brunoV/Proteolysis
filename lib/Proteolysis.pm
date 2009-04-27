@@ -1,5 +1,4 @@
 use MooseX::Declare;
-use lib qw(/home/brunov/lib/Protease/lib);
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 
 class Proteolysis {
@@ -72,13 +71,18 @@ class Proteolysis {
         while ($times) {
             my ($s, $p, $did_cut) = $self->_cut($self->_latest_pool);
 
-            if ($did_cut) { --$times };
-
             my $pool = Proteolysis::Pool->new;
             $pool->add_substrate($_) for @$s;
             $pool->add_product($_)   for @$p;
 
-            $self->add_pool($pool);
+            if ($did_cut) {
+                $self->add_pool($pool);
+                --$times;
+            }
+            else {
+                $self->_latest_pool($pool);
+            }
+
 
             last if (!@$s);
         }
@@ -97,7 +101,6 @@ class Proteolysis {
 
         if (!@sites) {
             push @products, $fragment;
-            $self->remove_pool($pool);
             return \@substrates, \@products, undef
         };
 
@@ -131,9 +134,6 @@ class Proteolysis {
 
         return ($fragment, @sites);
     }
-
-
-
 
 }
 
