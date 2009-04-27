@@ -1,0 +1,28 @@
+use lib qw(/home/brunov/lib/Proteolysis/lib);
+use Test::More qw(no_plan);
+use Test::Exception;
+use Proteolysis::Fragment;
+
+use_ok Proteolysis::Pool;
+
+my $pool = Proteolysis::Pool->new;
+
+isa_ok $pool, 'Proteolysis::Pool';
+
+my $seq = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
+
+my $fragment = Proteolysis::Fragment->new(
+    parent_sequence => $seq,
+    start           => 1,
+    end             => length $seq,
+);
+
+# Substrates
+lives_ok { $pool->add_substrate($fragment) }           'add_substrate';
+is         $pool->substrate_count, 1,                  'substrate_count';
+isa_ok     $pool->substrates, 'Proteolysis::Fragment', 'substrates';
+
+# Products
+lives_ok { $pool->add_product  ($fragment) }           'add_product';
+is         $pool->product_count, 1,                    'product_count';
+isa_ok     $pool->products, 'Proteolysis::Fragment',   'products';
