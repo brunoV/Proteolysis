@@ -32,21 +32,21 @@ class Proteolysis {
         isa    => 'Proteolysis::Pool',
     );
 
-    method add_pool( $pool ! ) {
-        my $previous = $self->pool;
-            $previous and $pool->previous($previous);
-
-            $self->pool($pool);
-        }
-
-        method shift_pool {
+    method shift_pool {
         my ( $first, $second ) = ( $self->pool, $self->pool->previous );
         return unless ( defined $second );
         $self->pool($second);
         return $first;
     }
 
-    method digest( PositiveInt | Str $times = 'Inf' ) {
+    method add_pool ( $pool! ) {
+        my $previous = $self->pool;
+        $previous and $pool->previous($previous);
+
+        $self->pool($pool);
+    }
+
+    method digest ( PositiveInt | Str $times = 'Inf' ) {
 
         while ($times) {
             my ( $s, $p, $did_cut ) = $self->_cut( $self->pool );
@@ -76,13 +76,14 @@ class Proteolysis {
             return \@substrates, \@products, undef;
         }
 
-        my ($fragment, @sites) = _cut_random_fragment(\@substrates, \@products, $self->protease);
+        my ( $fragment, @sites ) = _cut_random_fragment(
+            \@substrates, \@products, $self->protease
+        );
 
-        if (!@sites) {
+        if ( !@sites ) {
             push @products, $fragment;
-            return \@substrates, \@products, undef
-        };
-
+            return \@substrates, \@products, undef;
+        }
 
         my $idf = int rand @sites;
 
@@ -104,14 +105,14 @@ class Proteolysis {
     }
 
     sub _cut_random_fragment {
-        my ($substrates, $products, $protease) = @_;
+        my ( $substrates, $products, $protease ) = @_;
 
-        my $ids        = int rand @$substrates;
-        my $fragment   = splice @$substrates, $ids, 1;
+        my $ids = int rand @$substrates;
+        my $fragment = splice @$substrates, $ids, 1;
 
         my @sites = $protease->cleavage_sites( $fragment->seq );
 
-        return ($fragment, @sites);
+        return ( $fragment, @sites );
     }
 
 }

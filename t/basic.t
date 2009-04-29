@@ -4,20 +4,25 @@ use Test::More qw(no_plan);
 use Test::Exception;
 use Proteolysis::Pool;
 use Proteolysis::Fragment;
+use Bio::Protease;
 
 use ok 'Proteolysis';
 
+my $seq = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
+my $trypsin = Bio::Protease->new(specificity => 'trypsin');
+
 my $flask = Proteolysis->new(
     protease        => 'trypsin',
-    protein         => 'MAAAEELLKRKARPYWGGNGCCVIKPWR',
+    protein         => $seq,
 );
 
 isa_ok $flask,                 'Proteolysis';
 isa_ok $flask->protease,       'Bio::Protease';
 isa_ok $flask->protein_object, 'Bio::Seq';
-is     $flask->protein,        'MAAAEELLKRKARPYWGGNGCCVIKPWR';
+is     $flask->protein,        $seq,            'protein sequence is ok';
 
 my $pool = Proteolysis::Pool->new;
+
 $pool->add_substrate(
     Proteolysis::Fragment->new(
         parent_sequence => $flask->protein,
@@ -26,28 +31,25 @@ $pool->add_substrate(
     )
 );
 
+$flask->add_pool($pool);
 
-lives_ok { $flask->_latest_pool };
-isa_ok $flask->_latest_pool, 'Proteolysis::Pool';
+lives_ok { $flask->digest } "lived through infinite digestion";
 
-lives_ok { $flask->digest(300) };
+# Check that the products are identical to those obtained with
+# Bio::Protease.
 
-my @pools = $flask->pools;
+my @correct_products = sort $trypsin->digest($seq);
+my @products         = sort map { $_->seq } $flask->pool->products;
 
-my @fragments;
-push @fragments, $pool->substrates;
-push @fragments, $pool->products;
+is_deeply \@products, \@correct_products, "products returned are ok";
 
-foreach my $pool (@pools) {
-    say '---new pool---';
-    foreach my $fragment ($pool->substrates, $pool->products) {
-        say $fragment->seq,
-    }
-}
-
-my $last_pool = $flask->_latest_pool;
-
-say '--- last pool ---';
-foreach my $fragment ($last_pool->substrates, $last_pool->products) {
-    say $fragment->seq;
-}
+#while ( my $pool = $flask->shift_pool ) {
+#
+#    say "new timestep---*";
+#
+#    say "substrates:";
+#    say "\t", $_->seq for $pool->substrates;
+#
+#    say "products:";
+#    say "\t", $_->seq for $pool->products;
+#}
