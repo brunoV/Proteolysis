@@ -13,21 +13,18 @@ my $trypsin = Bio::Protease->new(specificity => 'trypsin');
 
 my $flask = Proteolysis->new(
     protease        => 'trypsin',
-    protein         => $seq,
 );
 
 isa_ok $flask,                 'Proteolysis';
 isa_ok $flask->protease,       'Bio::Protease';
-isa_ok $flask->protein_object, 'Bio::Seq';
-is     $flask->protein,        $seq,            'protein sequence is ok';
 
 my $pool = Proteolysis::Pool->new;
 
 $pool->add_substrate(
     Proteolysis::Fragment->new(
-        parent_sequence => $flask->protein,
+        parent_sequence => $seq,
         start           => 1,
-        end             => length $flask->protein,
+        end             => length $seq,
     )
 );
 

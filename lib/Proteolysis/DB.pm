@@ -10,7 +10,7 @@ class Proteolysis::DB extends KiokuX::Model {
             create  => 1,
             typemap => KiokuDB::TypeMap->new(
                 isa_entries => {
-                    "Bio::Root::Root" => KiokuDB::TypeMap::Entry::Naive->new,
+                    'Bio::Root::Root' => KiokuDB::TypeMap::Entry::Naive->new,
                 }
             ),
         } }

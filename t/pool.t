@@ -30,8 +30,8 @@ isa_ok     $pool->products, 'Proteolysis::Fragment',   'products';
 
 my $second_pool = Proteolysis::Pool->new;
 
-lives_ok { $second_pool->previous($pool) },             'previous';
+lives_ok { $second_pool->previous($pool) }              'previous';
 isa_ok     $second_pool->previous, 'Proteolysis::Pool', 'previous';
 
-lives_ok { $second_pool->clear_previous },              'clear_previous';
+lives_ok { $second_pool->clear_previous }               'clear_previous';
 ok         !$second_pool->previous,                     'clear_previous';

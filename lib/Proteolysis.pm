@@ -17,15 +17,6 @@ class Proteolysis {
         traits   => [qw(KiokuDB::DoNotSerialize)]
     );
 
-    has protein => (
-        is       => 'ro',
-        isa      => Protein,
-        reader   => 'protein_object',
-        required => 1,
-        handles  => { 'protein' => 'seq', },
-        coerce   => 1,
-    );
-
     has pool => (
         is      => 'rw',
         traits  => [qw(KiokuDB::Lazy)],
