@@ -43,13 +43,9 @@ my @products         = sort map { $_->seq } $flask->pool->products;
 
 is_deeply \@products, \@correct_products, "products returned are ok";
 
-#while ( my $pool = $flask->shift_pool ) {
-#
-#    say "new timestep---*";
-#
-#    say "substrates:";
-#    say "\t", $_->seq for $pool->substrates;
-#
-#    say "products:";
-#    say "\t", $_->seq for $pool->products;
-#}
+lives_ok { $flask->clear_pool };
+
+
+# Check clearing history.
+isa_ok $flask->pool,            'Proteolysis::Pool';
+ok     !$flask->pool->previous;

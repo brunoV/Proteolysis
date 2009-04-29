@@ -27,9 +27,12 @@ class Proteolysis {
     );
 
     has pool => (
-        is     => 'rw',
-        traits => [qw(KiokuDB::Lazy)],
-        isa    => 'Proteolysis::Pool',
+        is      => 'rw',
+        traits  => [qw(KiokuDB::Lazy)],
+        isa     => 'Proteolysis::Pool',
+        handles => {
+            clear_pool => 'clear_previous',
+        }
     );
 
     method shift_pool {

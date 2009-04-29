@@ -6,6 +6,7 @@ role Proteolysis::Role::WithHistory {
     has previous => (
         is       => 'rw',
         triggers => sub { shift->_increase_number(@_) },
+        clearer  => 'clear_previous',
     );
 
     has number => (
