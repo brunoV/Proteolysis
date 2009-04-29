@@ -27,12 +27,13 @@ my $pool = Proteolysis::Pool->new;
 
 $pool->add_substrate(
     Proteolysis::Fragment->new(
-        parent_sequence => $flask->protein,
+        parent_sequence => $seq, #$flask->protein,
         start           => 1,
-        end             => length $flask->protein,
+        end             => length $seq, # $flask->protein,
     )
 );
 
+$flask->add_pool($pool);
 $flask->add_pool($pool);
 
 my $id;
@@ -41,14 +42,16 @@ my $id;
     $flask->digest;
 
     my $scope = $db->new_scope;
-    $id = $db->insert($flask);
-    undef $flask;
+    my $pool = $flask->pool;
+    $id = $db->insert($pool);
+    undef $pool;
 }
 
 {
     my $scope = $db->new_scope;
-    my $flask = $db->lookup($id);
+    my $pool = $db->lookup($id);
 
-    isa_ok $flask, 'Proteolysis';
+    isa_ok $pool,           'Proteolysis::Pool';
+    isa_ok $pool->previous, 'Proteolysis::Pool';
 }
 
