@@ -2,8 +2,22 @@ use MooseX::Declare;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 
 class Proteolysis::Pool {
-    use Proteolysis::Types qw(Set);
+    use Proteolysis::Types qw(Set Pool);
+    use MooseX::Types::Common::Numeric qw(PositiveInt);
     use KiokuDB::Util qw(set);
+    use KiokuDB::Class;
+
+    has previous => (
+        is       => 'rw',
+        isa      => Pool,
+        traits   => [qw(KiokuDB::Lazy)],
+        triggers => sub { shift->_increase_number(@_) },
+    );
+
+    has number => (
+        is  => 'rw',
+        isa => PositiveInt,
+    );
 
     has 'substrates' => (
         is     => 'ro',
@@ -30,6 +44,14 @@ class Proteolysis::Pool {
             product_count => 'size',
         }
     );
+
+    method _increase_number ($previous) {
+        my $prev_no = $previous->number;
+        $prev_no //= '0';
+
+        $self->number(++$prev_no);
+    }
+
 }
 
 1;

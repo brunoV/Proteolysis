@@ -22,55 +22,34 @@ class Proteolysis {
         isa      => Protein,
         reader   => 'protein_object',
         required => 1,
-        handles  => {
-            'protein' => 'seq',
-        },
+        handles  => { 'protein' => 'seq', },
         coerce   => 1,
     );
 
-    has pools => (
-        is      => 'ro',
-        reader  => '_pools',
-        default => sub { set() },
-        isa     => Set,
-        handles => {
-            'pools'       => 'members',
-            'add_pool'    => 'insert',
-            'pool_count'  => 'size',
-            'remove_pool' => 'remove',
+    has pool => (
+        is     => 'rw',
+        traits => [qw(KiokuDB::Lazy)],
+        isa    => 'Proteolysis::Pool',
+    );
+
+    method add_pool( $pool ! ) {
+        my $previous = $self->pool;
+            $previous and $pool->previous($previous);
+
+            $self->pool($pool);
         }
-    );
 
-    after add_pool ($pool) {
-        $self->_latest_pool($pool);
+        method shift_pool {
+        my ( $first, $second ) = ( $self->pool, $self->pool->previous );
+        return unless ( defined $second );
+        $self->pool($second);
+        return $first;
     }
 
-    has _latest_pool => (
-        is         => 'rw',
-        isa        => 'Proteolysis::Pool',
-        lazy_build => 1,
-    );
-
-    method _build__latest_pool {
-        # If called and empty, build a pool with one molecule
-        # of "protein" attr.
-
-        my $pool     = Proteolysis::Pool->new;
-        my $fragment = Proteolysis::Fragment->new(
-            parent_sequence => $self->protein,
-            start           => 1,
-            end             => length $self->protein,
-        );
-
-        $pool->add_substrate($fragment);
-        return $pool;
-    }
-
-
-    method digest (PositiveInt $times = 1) {
+    method digest( PositiveInt | Str $times = 'Inf' ) {
 
         while ($times) {
-            my ($s, $p, $did_cut) = $self->_cut($self->_latest_pool);
+            my ( $s, $p, $did_cut ) = $self->_cut( $self->pool );
 
             my $pool = Proteolysis::Pool->new;
             $pool->add_substrate($_) for @$s;
@@ -79,13 +58,12 @@ class Proteolysis {
             if ($did_cut) {
                 $self->add_pool($pool);
                 --$times;
-            }
-            else {
-                $self->_latest_pool($pool);
+            } else {
+                $self->shift_pool;
+                $self->add_pool($pool);
             }
 
-
-            last if (!@$s);
+            last if ( !@$s );
         }
 
     }
