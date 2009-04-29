@@ -12,9 +12,9 @@ class Proteolysis {
     has protease => (
         is       => 'ro',
         isa      => Protease,
-        required => 1,
         coerce   => 1,
         handles  => [qw(cleavage_sites)],
+        traits   => [qw(KiokuDB::DoNotSerialize)]
     );
 
     has protein => (
@@ -50,6 +50,8 @@ class Proteolysis {
     }
 
     method digest ( PositiveInt | Str $times = 'Inf' ) {
+
+        $self->protease or return;
 
         while ($times) {
             my ( $s, $p, $did_cut ) = $self->_cut( $self->pool );
