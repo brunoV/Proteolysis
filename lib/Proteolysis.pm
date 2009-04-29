@@ -7,6 +7,7 @@ class Proteolysis {
     use MooseX::Types::Common::Numeric qw(PositiveInt);
     use MooseX::Types::Moose qw(Str);
     use KiokuDB::Util qw(set);
+    use KiokuDB::Class;
 
     has protease => (
         is       => 'ro',
