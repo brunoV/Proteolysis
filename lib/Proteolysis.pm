@@ -10,7 +10,7 @@ class Proteolysis {
     use KiokuDB::Class;
 
     has protease => (
-        is       => 'ro',
+        is       => 'rw',
         isa      => Protease,
         coerce   => 1,
         handles  => [qw(cleavage_sites)],
@@ -59,8 +59,10 @@ class Proteolysis {
                 $self->add_pool($pool);
             }
 
-            last if ( !@$s );
+            return if ( !@$s );
         }
+
+        return 1;
 
     }
 
