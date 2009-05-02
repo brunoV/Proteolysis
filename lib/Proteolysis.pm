@@ -35,7 +35,7 @@ class Proteolysis {
 
     method add_pool ( $pool! ) {
         my $previous = $self->pool;
-        $previous and $pool->previous($previous);
+        $pool->previous($previous) if $previous;
 
         $self->pool($pool);
     }

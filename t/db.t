@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
+use KiokuDB::Backend::Hash;
 use Test::More qw(no_plan);
 use Test::Exception;
 use Proteolysis;
@@ -11,12 +12,19 @@ use ok 'Proteolysis::DB';
 
 unlink 'db';
 
+my $dbname = 'db';
 my $db;
-lives_ok { $db = Proteolysis::DB->new } 'Database instantiation';
 
-ok -e 'db',                             'Database created ok';
+lives_ok { 
+    $db = Proteolysis::DB->new(
+        dsn => 'bdb:dir=' . $dbname,
+    );
 
-my $seq = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
+} 'Database instantiation';
+
+ok -e $dbname, 'Database created ok';
+
+my $seq   = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
 
 my $flask = Proteolysis->new(
     protease => 'trypsin',
@@ -27,7 +35,7 @@ my $pool = Proteolysis::Pool->new;
 
 $pool->add_substrate(
     Proteolysis::Fragment->new(
-        parent_sequence => $seq, #$flask->protein,
+        parent_sequence => $seq,        # $flask->protein,
         start           => 1,
         end             => length $seq, # $flask->protein,
     )
@@ -54,4 +62,3 @@ my $id;
     isa_ok $pool,           'Proteolysis::Pool';
     isa_ok $pool->previous, 'Proteolysis::Pool';
 }
-

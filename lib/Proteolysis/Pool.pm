@@ -11,6 +11,7 @@ class Proteolysis::Pool with Proteolysis::Role::WithHistory {
         isa    => Set,
         reader => '_substrates',
         lazy   => 1,
+        traits => [qw(KiokuDB::Lazy)],
         default => sub { set() },
         handles => {
             add_substrate   => 'insert',
@@ -24,6 +25,7 @@ class Proteolysis::Pool with Proteolysis::Role::WithHistory {
         isa    => Set,
         reader => '_products',
         lazy   => 1,
+        traits  => [qw(KiokuDB::Lazy)],
         default => sub { set() },
         handles => {
             add_product   => 'insert',
