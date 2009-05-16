@@ -10,7 +10,6 @@ class Proteolysis::Fragment {
         is       => 'ro',
         isa      => Protein,
         required => 1,
-        coerce   => 1,
     );
 
     has start => (
@@ -30,7 +29,7 @@ class Proteolysis::Fragment {
     method BUILD ($params) {
         unless ( $self->_has_start ) { $self->_set_start(1) };
         unless ( $self->_has_end ) {
-            $self->_set_end( length $self->parent_sequence->seq )
+            $self->_set_end( length $self->parent_sequence )
         };
     }
 
@@ -39,7 +38,7 @@ class Proteolysis::Fragment {
 
         my $start  = $self->start - 1;
         my $length = $self->end - $self->start + 1;
-        my $seq    = substr( $self->parent_sequence->seq, $start, $length );
+        my $seq    = substr( $self->parent_sequence, $start, $length );
 
         return $seq;
     }

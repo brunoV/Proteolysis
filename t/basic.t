@@ -40,9 +40,9 @@ my @products         = sort map { $_->seq } $flask->pool->products;
 
 is_deeply \@products, \@correct_products, "products returned are ok";
 
-lives_ok { $flask->clear_pool };
+lives_ok { $flask->clear_previous_pools };
 
 
 # Check clearing history.
-isa_ok $flask->pool,            'Proteolysis::Pool';
+isa_ok  $flask->pool,            'Proteolysis::Pool';
 ok     !$flask->pool->previous;

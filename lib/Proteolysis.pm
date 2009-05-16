@@ -3,10 +3,8 @@ use lib qw(/home/brunov/lib/Proteolysis/lib);
 
 class Proteolysis {
     use Proteolysis::Pool;
-    use Proteolysis::Types qw(Set Protease Protein);
-    use MooseX::Types::Common::Numeric qw(PositiveInt);
-    use MooseX::Types::Moose qw(Str);
-    use KiokuDB::Util qw(set);
+    use Proteolysis::Types qw(Protease);
+    use MooseX::Types::Moose qw(Num);
     use KiokuDB::Class;
 
     has protease => (
@@ -21,9 +19,16 @@ class Proteolysis {
         is      => 'rw',
         traits  => [qw(KiokuDB::Lazy)],
         isa     => 'Proteolysis::Pool',
+        clearer => 'clear_pool',
         handles => {
-            clear_pool => 'clear_previous',
+            clear_previous_pools => 'clear_previous',
         }
+    );
+
+    has detail_level => (
+        is      => 'rw',
+        isa     => Num,
+        default => 1,
     );
 
     method shift_pool {
@@ -35,26 +40,41 @@ class Proteolysis {
 
     method add_pool ( $pool! ) {
         my $previous = $self->pool;
-        $pool->previous($previous) if $previous;
+
+        if ($previous) {
+            $pool->previous($previous);
+            $self->clear_pool;
+        }
 
         $self->pool($pool);
     }
 
-    method digest ( PositiveInt | Str $times = 'Inf' ) {
+    method digest ( Num $times = -1 ) {
 
         $self->protease or return;
+        my $d = int( 1 / $self->detail_level );
 
         while ($times) {
             my ( $s, $p, $did_cut ) = $self->_cut( $self->pool );
 
             my $pool = Proteolysis::Pool->new;
-            $pool->add_substrate($_) for @$s;
-            $pool->add_product($_)   for @$p;
+            $pool->add_substrate(@$s);
+            $pool->add_product  (@$p);
 
-            if ($did_cut) {
-                $self->add_pool($pool);
+            my $skip = $times % $d;
+
+            if ($did_cut) { 
                 --$times;
-            } else {
+
+                if ($skip) {
+                    $self->shift_pool;
+                    $self->add_pool($pool);
+                }
+                else {
+                    $self->add_pool($pool);
+                }
+            }
+            else {
                 $self->shift_pool;
                 $self->add_pool($pool);
             }

@@ -2,41 +2,43 @@ use MooseX::Declare;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 
 class Proteolysis::Pool with Proteolysis::Role::WithHistory {
-    use Proteolysis::Types qw(Set Pool);
-    use KiokuDB::Util qw(set);
+    use Proteolysis::Types   qw(Pool Fragment);
+    use MooseX::Types::Moose qw(ArrayRef);
     use KiokuDB::Class;
 
     has 'substrates' => (
-        is     => 'ro',
-        isa    => Set,
-        reader => '_substrates',
-        lazy   => 1,
-        traits => [qw(KiokuDB::Lazy)],
-        default => sub { set() },
-        handles => {
-            add_substrate   => 'insert',
-            substrates      => 'members',
-            substrate_count => 'size',
+        is         => 'rw',
+        isa        => ArrayRef[Fragment],
+        metaclass  => 'Collection::Array',
+        lazy       => 1,
+        auto_deref => 1,
+        traits     => [qw(KiokuDB::Lazy)],
+        default    => sub { [] },
+        provides   => {
+            count  => 'substrate_count',
+            push   => 'add_substrate',
         }
+
     );
 
     has 'products' => (
-        is     => 'ro',
-        isa    => Set,
-        reader => '_products',
-        lazy   => 1,
-        traits  => [qw(KiokuDB::Lazy)],
-        default => sub { set() },
-        handles => {
-            add_product   => 'insert',
-            products      => 'members',
-            product_count => 'size',
+        is         => 'rw',
+        isa        => ArrayRef[Fragment],
+        metaclass  => 'Collection::Array',
+        lazy       => 1,
+        auto_deref => 1,
+        traits     => [qw(KiokuDB::Lazy)],
+        default    => sub { [] },
+        provides   => {
+            count  => 'product_count',
+            push   => 'add_product',
         }
+
     );
 
     has '+previous' => (
-        isa    => Pool,
-        traits => [qw(KiokuDB::Lazy)],
+        isa      => Pool,
+        traits   => [qw(KiokuDB::Lazy)],
     );
 
 }

@@ -12,18 +12,13 @@ role_type  Set,      { role  => 'KiokuDB::Set'          };
 class_type Fragment, { class => 'Proteolysis::Fragment' };
 class_type Pool,     { class => 'Proteolysis::Pool'     };
 class_type Protease, { class => 'Bio::Protease'         };
-subtype Protein, as class_type('Bio::Seq'), where { $_->alphabet eq 'protein' };
+subtype Protein, as 'Str';
+#subtype Protein, as class_type('Bio::Seq'), where { $_->alphabet eq 'protein' };
 
 coerce Protease,
     from 'Str',
     via {
         Bio::Protease->new(specificity => $_);
-    };
-
-coerce Protein,
-    from 'Str',
-    via {
-        Bio::Seq->new(-seq => $_, -alphabet => 'protein')
     };
 
 1;
