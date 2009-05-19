@@ -8,8 +8,8 @@ role Proteolysis::Role::DH {
     use MooseX::Types::Moose qw( Num  );
 
     has _first_pool => (
-        is   => 'ro',
-        isa  => Pool,
+        is         => 'ro',
+        isa        => Pool,
         lazy_build => 1,
     );
 

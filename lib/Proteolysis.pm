@@ -18,7 +18,8 @@ class Proteolysis
     );
 
     has pool => (
-        is      => 'rw',
+        is      => 'ro',
+        writer  => '_set_pool',
         traits  => [qw(KiokuDB::Lazy)],
         isa     => 'Proteolysis::Pool',
         clearer => 'clear_pool',
@@ -36,7 +37,7 @@ class Proteolysis
     method shift_pool {
         my ( $first, $second ) = ( $self->pool, $self->pool->previous );
         return unless ( defined $second );
-        $self->pool($second);
+        $self->_set_pool($second);
         return $first;
     }
 
@@ -48,7 +49,7 @@ class Proteolysis
             $self->clear_pool;
         }
 
-        $self->pool($pool);
+        $self->_set_pool($pool);
     }
 
     method digest ( Num $times = -1 ) {
