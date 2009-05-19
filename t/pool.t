@@ -25,7 +25,9 @@ isa_ok     ${$pool->substrates}[0], 'Proteolysis::Fragment', 'substrates';
 # Products
 lives_ok { $pool->add_product  ($fragment) }           'add_product';
 is         $pool->product_count, 1,                    'product_count';
-isa_ok     ${$pool->products}[0], 'Proteolysis::Fragment',   'products';
+is         $pool->count, 2,                            'total count';
+
+isa_ok ${$pool->products}[0], 'Proteolysis::Fragment', 'products';
 
 my $second_pool = Proteolysis::Pool->new;
 

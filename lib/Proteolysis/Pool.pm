@@ -45,6 +45,10 @@ class Proteolysis::Pool
         traits   => [qw(KiokuDB::Lazy)],
     );
 
+    method count {
+        return $self->substrate_count + $self->product_count;
+    }
+
 }
 
 1;
