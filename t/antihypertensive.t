@@ -9,7 +9,7 @@ class Thing {
     );
 }
 
-class Bogus with Proteolysis::Stats::Antihypertensive {
+class Bogus with MooseX::Object::Pluggable {
     has [qw(substrate_count product_count)] => (
         is      => 'rw',
         default => 1,
@@ -28,6 +28,9 @@ isa_ok $bogus, 'Bogus';
 
 isa_ok $bogus->substrates, 'Thing';
 isa_ok $bogus->products,   'Thing';
+
+$bogus->_plugin_app_ns(['Proteolysis::Pool']);
+$bogus->load_plugin('Antihypertensive');
 
 is $bogus->substrates->seq, 'IKP';
 is $bogus->products  ->seq, 'IKP';

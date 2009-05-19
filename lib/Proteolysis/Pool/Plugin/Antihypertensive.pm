@@ -1,6 +1,6 @@
 use MooseX::Declare;
 
-role Proteolysis::Stats::Antihypertensive {
+role Proteolysis::Pool::Plugin::Antihypertensive {
     use MooseX::Types::Moose qw(HashRef Str);
     use Statistics::Descriptive;
     use autodie qw(open);
