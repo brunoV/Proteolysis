@@ -1,11 +1,13 @@
 use MooseX::Declare;
 
-role Proteolysis::Stats::Length {
+role Proteolysis::Role::Length {
+
     use Statistics::Descriptive;
 
     has length_stats => (
         is         => 'ro',
         lazy_build => 1,
+        traits     => [qw(KiokuDB::DoNotSerialize)],
         handles    => {
             mean_length         => 'mean',
             max_length          => 'max',
@@ -29,8 +31,4 @@ role Proteolysis::Stats::Length {
         return $stats;
     }
 
-    method count {
-        my $count = $self->substrate_count + $self->product_count;
-        return $count;
-    }
 }

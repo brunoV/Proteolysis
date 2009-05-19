@@ -10,7 +10,7 @@ class Thing {
     );
 }
 
-class Bogus with Proteolysis::Stats::Length {
+class Bogus with Proteolysis::Role::Length {
     has [qw(substrate_count product_count)] => (
         is      => 'rw',
         default => 1,
