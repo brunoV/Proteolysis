@@ -32,5 +32,8 @@ my $second_pool = Proteolysis::Pool->new;
 lives_ok { $second_pool->previous($pool) }              'previous';
 isa_ok     $second_pool->previous, 'Proteolysis::Pool', 'previous';
 
+is         $second_pool->number,                        '1';
+
 lives_ok { $second_pool->clear_previous }               'clear_previous';
 ok         !$second_pool->previous,                     'clear_previous';
+

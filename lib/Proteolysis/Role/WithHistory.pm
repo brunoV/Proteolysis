@@ -5,13 +5,14 @@ role Proteolysis::Role::WithHistory {
 
     has previous => (
         is       => 'rw',
-        triggers => sub { shift->_increase_number(@_) },
+        trigger  => sub { shift->_increase_number(@_) },
         clearer  => 'clear_previous',
     );
 
     has number => (
-        is  => 'rw',
-        isa => PositiveInt,
+        is      => 'rw',
+        isa     => PositiveInt,
+        default => 0,
     );
 
     method _increase_number ($previous) {
