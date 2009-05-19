@@ -12,7 +12,7 @@ my $seq = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
 my $trypsin = Bio::Protease->new(specificity => 'trypsin');
 
 my $flask = Proteolysis->new(
-    protease        => 'trypsin',
+    protease        => $trypsin,
 );
 
 isa_ok $flask,                 'Proteolysis';
