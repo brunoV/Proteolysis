@@ -37,10 +37,15 @@ class Proteolysis::Fragment {
         # Return the subsequence.
 
         my $start  = $self->start - 1;
-        my $length = $self->end - $self->start + 1;
+        my $length = $self->length;
         my $seq    = substr( $self->parent_sequence, $start, $length );
 
         return $seq;
+    }
+
+    method length {
+        # return the fragment length
+        return $self->end - $self->start + 1;
     }
 }
 
