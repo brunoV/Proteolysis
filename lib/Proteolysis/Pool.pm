@@ -1,7 +1,9 @@
 use MooseX::Declare;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 
-class Proteolysis::Pool with Proteolysis::Role::WithHistory {
+class Proteolysis::Pool
+    with Proteolysis::Role::WithHistory with Proteolysis::Stats::Length {
+
     use Proteolysis::Types   qw(Pool Fragment);
     use MooseX::Types::Moose qw(ArrayRef);
     use KiokuDB::Class;
