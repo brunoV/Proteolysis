@@ -1,7 +1,7 @@
 use MooseX::Declare;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 
-class Proteolysis {
+class Proteolysis with Proteolysis::Role::DH {
     use Proteolysis::Pool;
     use Proteolysis::Types qw(Protease);
     use MooseX::Types::Moose qw(Num);
