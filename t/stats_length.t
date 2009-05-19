@@ -40,9 +40,8 @@ is $bogus->products->length, 1;
 is $bogus->mean_length, 3, 'Mean';
 is $bogus->min_length,  1, 'Min';
 is $bogus->max_length,  5, 'Max';
-is $bogus->count,       2, 'Count';
 
-my %dist = $bogus->length_distribution(2);
+my %dist = $bogus->length_distribution([sort $bogus->length_stats->get_data]);
 is_deeply( \%dist, { 1 => 1, 5 => 1 } );
 
 my $stats = $bogus->length_stats;

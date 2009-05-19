@@ -3,6 +3,7 @@ use Modern::Perl;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 
 role Proteolysis::Role::DH {
+
     use Proteolysis::Types   qw( Pool );
     use MooseX::Types::Moose qw( Num  );
 
