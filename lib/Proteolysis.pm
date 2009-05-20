@@ -46,7 +46,6 @@ class Proteolysis
 
         if ($previous) {
             $pool->previous($previous);
-            $self->clear_pool;
         }
 
         $self->_set_pool($pool);
@@ -66,7 +65,7 @@ class Proteolysis
 
             my $skip = $times % $d;
 
-            if ($did_cut) { 
+            if ($did_cut) {
                 --$times;
 
                 if ($skip) {
@@ -137,5 +136,3 @@ class Proteolysis
     }
 
 }
-
-1;
