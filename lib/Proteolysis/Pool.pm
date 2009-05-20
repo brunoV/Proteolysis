@@ -12,7 +12,7 @@ class Proteolysis::Pool
 
     has 'substrates' => (
         is         => 'rw',
-        isa        => ArrayRef[Fragment],
+        isa        => ArrayRef,
         metaclass  => 'Collection::Array',
         lazy       => 1,
         auto_deref => 1,
@@ -27,7 +27,7 @@ class Proteolysis::Pool
 
     has 'products' => (
         is         => 'rw',
-        isa        => ArrayRef[Fragment],
+        isa        => ArrayRef,
         metaclass  => 'Collection::Array',
         lazy       => 1,
         auto_deref => 1,
