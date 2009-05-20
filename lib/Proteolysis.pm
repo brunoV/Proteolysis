@@ -1,138 +1,146 @@
-use MooseX::Declare;
+package Proteolysis;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
+use Moose;
+use Proteolysis::Pool;
+use Proteolysis::Types qw(Protease);
+use MooseX::Types::Moose qw(Num);
+use KiokuDB::Class;
+use namespace::clean -except => 'meta';
 
-class Proteolysis
-    with Proteolysis::Role::DH with MooseX::Object::Pluggable {
+with qw(Proteolysis::Role::DH MooseX::Object::Pluggable);
 
-    use Proteolysis::Pool;
-    use Proteolysis::Types qw(Protease);
-    use MooseX::Types::Moose qw(Num);
-    use KiokuDB::Class;
+has protease => (
+    is       => 'rw',
+    isa      => Protease,
+    coerce   => 1,
+    handles  => [qw(cleavage_sites)],
+    traits   => [qw(KiokuDB::DoNotSerialize)]
+);
 
-    has protease => (
-        is       => 'rw',
-        isa      => Protease,
-        coerce   => 1,
-        handles  => [qw(cleavage_sites)],
-        traits   => [qw(KiokuDB::DoNotSerialize)]
-    );
+has pool => (
+    is      => 'ro',
+    writer  => '_set_pool',
+    traits  => [qw(KiokuDB::Lazy)],
+    isa     => 'Proteolysis::Pool',
+    clearer => 'clear_pool',
+    handles => {
+        clear_previous_pools => 'clear_previous',
+    }
+);
 
-    has pool => (
-        is      => 'ro',
-        writer  => '_set_pool',
-        traits  => [qw(KiokuDB::Lazy)],
-        isa     => 'Proteolysis::Pool',
-        clearer => 'clear_pool',
-        handles => {
-            clear_previous_pools => 'clear_previous',
-        }
-    );
+has detail_level => (
+    is      => 'rw',
+    isa     => Num,
+    default => 1,
+);
 
-    has detail_level => (
-        is      => 'rw',
-        isa     => Num,
-        default => 1,
-    );
+sub shift_pool {
+    my $self = shift;
+    my ( $first, $second ) = ( $self->pool, $self->pool->previous );
+    return unless ( defined $second );
+    $self->_set_pool($second);
+    return $first;
+}
 
-    method shift_pool {
-        my ( $first, $second ) = ( $self->pool, $self->pool->previous );
-        return unless ( defined $second );
-        $self->_set_pool($second);
-        return $first;
+sub add_pool {
+    my ($self, $pool) = @_;
+
+    my $previous = $self->pool;
+
+    if ($previous) {
+        $pool->previous($previous);
     }
 
-    method add_pool ( $pool! ) {
-        my $previous = $self->pool;
+    $self->_set_pool($pool);
+}
 
-        if ($previous) {
-            $pool->previous($previous);
-        }
+sub digest {
+    my ($self, $times) = @_;
+    $times //= -1;
 
-        $self->_set_pool($pool);
-    }
+    $self->protease or return;
+    my $d = int( 1 / $self->detail_level );
 
-    method digest ( Num $times = -1 ) {
+    while ($times) {
+        my ( $s, $p, $did_cut ) = $self->_cut( $self->pool );
 
-        $self->protease or return;
-        my $d = int( 1 / $self->detail_level );
+        my $pool = Proteolysis::Pool->new;
+        $pool->add_substrate(@$s);
+        $pool->add_product  (@$p);
 
-        while ($times) {
-            my ( $s, $p, $did_cut ) = $self->_cut( $self->pool );
+        my $skip = $times % $d;
 
-            my $pool = Proteolysis::Pool->new;
-            $pool->add_substrate(@$s);
-            $pool->add_product  (@$p);
+        if ($did_cut) {
+            --$times;
 
-            my $skip = $times % $d;
-
-            if ($did_cut) {
-                --$times;
-
-                if ($skip) {
-                    $self->shift_pool;
-                    $self->add_pool($pool);
-                }
-                else {
-                    $self->add_pool($pool);
-                }
-            }
-            else {
+            if ($skip) {
                 $self->shift_pool;
                 $self->add_pool($pool);
             }
-
-            return if ( !@$s );
+            else {
+                $self->add_pool($pool);
+            }
+        }
+        else {
+            $self->shift_pool;
+            $self->add_pool($pool);
         }
 
-        return 1;
-
+        return if ( !@$s );
     }
 
-    method _cut ($pool) {
-        my @products   = $pool->products;
-        my @substrates = $pool->substrates;
-
-        unless (@substrates) {
-            return \@substrates, \@products, undef;
-        }
-
-        my ( $fragment, @sites ) = _cut_random_fragment(
-            \@substrates, \@products, $self->protease
-        );
-
-        if ( !@sites ) {
-            push @products, $fragment;
-            return \@substrates, \@products, undef;
-        }
-
-        my $idf = int rand @sites;
-
-        my $head = Proteolysis::Fragment->new(
-            parent_sequence => $fragment->parent_sequence,
-            start           => $fragment->start,
-            end             => $sites[$idf] + $fragment->start - 1,
-        );
-
-        my $tail = Proteolysis::Fragment->new(
-            parent_sequence => $fragment->parent_sequence,
-            start           => $sites[$idf] + $fragment->start,
-            end             => $fragment->end,
-        );
-
-        push @substrates, ( $head, $tail );
-
-        return \@substrates, \@products, 1;
-    }
-
-    sub _cut_random_fragment {
-        my ( $substrates, $products, $protease ) = @_;
-
-        my $ids = int rand @$substrates;
-        my $fragment = splice @$substrates, $ids, 1;
-
-        my @sites = $protease->cleavage_sites( $fragment->seq );
-
-        return ( $fragment, @sites );
-    }
+    return 1;
 
 }
+
+sub _cut {
+    my ( $self, $pool ) = @_;
+
+    my @products   = $pool->products;
+    my @substrates = $pool->substrates;
+
+    unless (@substrates) {
+        return \@substrates, \@products, undef;
+    }
+
+    my ( $fragment, @sites ) = _cut_random_fragment(
+        \@substrates, \@products, $self->protease
+    );
+
+    if ( !@sites ) {
+        push @products, $fragment;
+        return \@substrates, \@products, undef;
+    }
+
+    my $idf = int rand @sites;
+
+    my $head = Proteolysis::Fragment->new(
+        parent_sequence => $fragment->parent_sequence,
+        start           => $fragment->start,
+        end             => $sites[$idf] + $fragment->start - 1,
+    );
+
+    my $tail = Proteolysis::Fragment->new(
+        parent_sequence => $fragment->parent_sequence,
+        start           => $sites[$idf] + $fragment->start,
+        end             => $fragment->end,
+    );
+
+    push @substrates, ( $head, $tail );
+
+    return \@substrates, \@products, 1;
+}
+
+sub _cut_random_fragment {
+    my ( $substrates, $products, $protease ) = @_;
+
+    my $ids = int rand @$substrates;
+    my $fragment = splice @$substrates, $ids, 1;
+
+    my @sites = $protease->cleavage_sites( $fragment->seq );
+
+    return ( $fragment, @sites );
+}
+
+__PACKAGE__->meta->make_immutable;
+1;
