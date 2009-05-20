@@ -96,26 +96,24 @@ class Proteolysis
             return \@substrates, \@products, undef;
         }
 
-        my ( $fragment, @sites ) = _cut_random_fragment(
+        my ( $fragment, $site ) = _cut_random_fragment(
             \@substrates, \@products, $self->protease
         );
 
-        if ( !@sites ) {
+        if ( !$site ) {
             push @products, $fragment;
             return \@substrates, \@products, undef;
         }
 
-        my $idf = int rand @sites;
-
         my $head = Proteolysis::Fragment->new(
             parent_sequence => $fragment->parent_sequence,
             start           => $fragment->start,
-            end             => $sites[$idf] + $fragment->start - 1,
+            end             => $site + $fragment->start - 1,
         );
 
         my $tail = Proteolysis::Fragment->new(
             parent_sequence => $fragment->parent_sequence,
-            start           => $sites[$idf] + $fragment->start,
+            start           => $site + $fragment->start,
             end             => $fragment->end,
         );
 
@@ -132,7 +130,9 @@ class Proteolysis
 
         my @sites = $protease->cleavage_sites( $fragment->seq );
 
-        return ( $fragment, @sites );
+        my $site  = $sites[rand @sites];
+
+        return ( $fragment, $site );
     }
 
 }
