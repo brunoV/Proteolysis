@@ -54,6 +54,5 @@ sub length {
     return $self->end - $self->start + 1;
 }
 
-
 __PACKAGE__->meta->make_immutable;
 1;

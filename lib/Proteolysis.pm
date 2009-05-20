@@ -7,6 +7,7 @@ use MooseX::Types::Moose qw(Num);
 use KiokuDB::Class;
 use namespace::clean -except => 'meta';
 
+
 with qw(Proteolysis::Role::DH MooseX::Object::Pluggable);
 
 has protease => (
