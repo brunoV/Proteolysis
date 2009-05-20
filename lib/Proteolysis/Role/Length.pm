@@ -1,34 +1,37 @@
-use MooseX::Declare;
+package Proteolysis::Role::Length;
+use Moose::Role;
+use Statistics::Descriptive;
+use namespace::clean -except => 'meta';
 
-role Proteolysis::Role::Length {
+has length_stats => (
+    is         => 'ro',
+    lazy_build => 1,
+    traits     => [qw(KiokuDB::DoNotSerialize)],
+    handles    => {
+        mean_length         => 'mean',
+        max_length          => 'max',
+        min_length          => 'min',
+        length_distribution => 'frequency_distribution',
+    }
+);
 
-    use Statistics::Descriptive;
+sub length {
+    my $self = shift;
 
-    has length_stats => (
-        is         => 'ro',
-        lazy_build => 1,
-        traits     => [qw(KiokuDB::DoNotSerialize)],
-        handles    => {
-            mean_length         => 'mean',
-            max_length          => 'max',
-            min_length          => 'min',
-            length_distribution => 'frequency_distribution',
-        }
+    my $length_stats = $self->length_stats;
+    return $length_stats->mean;
+}
+
+sub _build_length_stats {
+    my $self = shift;
+
+    my $stats = Statistics::Descriptive::Full->new;
+
+    $stats->add_data(
+        map { $_->length } ( $self->substrates, $self->products )
     );
 
-    method length {
-        my $length_stats = $self->length_stats;
-        return $length_stats->mean;
-    }
-
-    method _build_length_stats {
-        my $stats = Statistics::Descriptive::Full->new;
-
-        $stats->add_data(
-            map { $_->length } ( $self->substrates, $self->products )
-        );
-
-        return $stats;
-    }
-
+    return $stats;
 }
+
+1;

@@ -1,11 +1,15 @@
-use MooseX::Declare;
+package Proteolysis::Plugin::Antihypertensive;
+use Moose::Role;
 use Modern::Perl;
+use namespace::clean -except => 'meta';
 
-role Proteolysis::Plugin::Antihypertensive {
-    around pool {
-        my $pool = $self->$orig();
-        $pool->load_plugin('Antihypertensive') if $pool;
+around pool => sub {
+    my ( $self, $orig ) = @_;
 
-        return $pool;
-    }
-}
+    my $pool = $self->$orig();
+    $pool->load_plugin('Antihypertensive') if $pool;
+
+    return $pool;
+};
+
+1;

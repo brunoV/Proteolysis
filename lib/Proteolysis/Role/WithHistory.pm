@@ -1,30 +1,31 @@
-use MooseX::Declare;
+package Proteolysis::Role::WithHistory;
+use lib qw(/home/brunov/lib/Proteolysis/lib);
+use Moose::Role;;
 use Modern::Perl;
+use MooseX::Types::Common::Numeric qw(PositiveInt);
+use Proteolysis::Types qw(Pool);
+use namespace::clean -except => 'meta';
 
-role Proteolysis::Role::WithHistory {
-    use MooseX::Types::Common::Numeric qw(PositiveInt);
-    use Proteolysis::Types qw(Pool);
+has previous => (
+    is       => 'rw',
+    isa      => Pool,
+    trigger  => sub { shift->_increase_number(@_) },
+    clearer  => 'clear_previous',
+);
 
-    has previous => (
-        is       => 'rw',
-        isa      => Pool,
-        trigger  => sub { shift->_increase_number(@_) },
-        clearer  => 'clear_previous',
-    );
+has number => (
+    is      => 'rw',
+    isa     => PositiveInt,
+    default => 0,
+);
 
-    has number => (
-        is      => 'rw',
-        isa     => PositiveInt,
-        default => 0,
-    );
+sub _increase_number {
+    my ($self, $previous) = @_;
 
-    method _increase_number ($previous) {
-        my $prev_no = $previous->number;
-        $prev_no  //= '0';
+    my $prev_no = $previous->number;
+    $prev_no  //= '0';
 
-        $self->number(++$prev_no);
-    }
-
+    $self->number(++$prev_no);
 }
 
 1;
