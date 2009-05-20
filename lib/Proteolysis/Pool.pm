@@ -11,7 +11,7 @@ with qw(Proteolysis::Role::WithHistory Proteolysis::Role::Length
 
 has 'substrates' => (
     is         => 'rw',
-    isa        => ArrayRef[Fragment],
+    isa        => ArrayRef,
     metaclass  => 'Collection::Array',
     lazy       => 1,
     auto_deref => 1,
@@ -26,7 +26,7 @@ has 'substrates' => (
 
 has 'products' => (
     is         => 'rw',
-    isa        => ArrayRef[Fragment],
+    isa        => ArrayRef,
     metaclass  => 'Collection::Array',
     lazy       => 1,
     auto_deref => 1,
