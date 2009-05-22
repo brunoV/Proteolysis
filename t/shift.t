@@ -3,7 +3,6 @@ use warnings;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Test::More qw(no_plan);
 use Test::Exception;
-use Proteolysis::Fragment;
 
 use_ok 'Proteolysis';
 use_ok 'Proteolysis::Pool';

@@ -1,25 +1,36 @@
 use Test::More qw(no_plan);
 use Modern::Perl;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
-use Devel::SimpleTrace;
 
 use ok 'Proteolysis';
-use ok 'Proteolysis::Pool';
-use ok 'Proteolysis::Fragment';
 
 my $seq   = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
 my $flask = Proteolysis->new( protease => 'hcl' );
 
-my $pool = Proteolysis::Pool->new();
+my $pool  = Proteolysis::Pool->new();
 
-$pool->add_substrate(
-    Proteolysis::Fragment->new( parent_sequence => $seq )
-);
+$pool->add_substrate($seq);
 
 $flask->add_pool($pool);
 
-is $flask->dh, 0, 'DH before digesting is 0';
+#$flask->add_pool($pool->clone);
+#
+#is $flask->pool->number,                1;
+#is $flask->pool->previous->number,      0;
+#is $flask->_get_pool_number(0)->number, 0;
+#is $flask->_get_first_pool->number, 0;
 
-$flask->digest;
+
+is $flask->dh, 0, 'DH before digesting is 0';
+is $flask->pool->mean_length, 28;
+
+$flask->digest();
 
 is $flask->dh, 100, 'DH after full digest is 100';
+ok $flask->pool->product_count != $flask->pool->previous->product_count;
+
+my $p = $flask->pool;
+
+do {
+    say $p->count;
+} while ( $p = $p->previous );
