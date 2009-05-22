@@ -59,85 +59,63 @@ sub digest {
     my ($self, $times) = @_;
     $times //= -1;
 
-    $self->protease or return;
+    $self->protease              or return;
+    $self->pool->substrate_count or return;
+
     my $d = int( 1 / $self->detail_level );
 
     while ($times) {
-        my ( $s, $p, $did_cut ) = $self->_cut( $self->pool );
 
-        my $pool = Proteolysis::Pool->new;
-        $pool->add_substrate(@$s);
-        $pool->add_product  (@$p);
+        my $did_cut = $self->_cut();
+        last unless ($did_cut);
 
+        --$times;
         my $skip = $times % $d;
 
-        if ($did_cut) {
-            --$times;
-
-            if ($skip) {
-                $self->shift_pool;
-                $self->add_pool($pool);
-            }
-            else {
-                $self->add_pool($pool);
-            }
+        if ($did_cut and !$skip) {
+            my $new_pool = $self->pool->clone;
+            $self->add_pool($new_pool);
         }
-        else {
-            $self->shift_pool;
-            $self->add_pool($pool);
-        }
-
-        return if ( !@$s );
     }
 
     return 1;
-
 }
 
 sub _cut {
-    my ( $self, $pool ) = @_;
+    my ( $self ) = @_;
 
-    my @products   = $pool->products;
-    my @substrates = $pool->substrates;
-
-    unless (@substrates) {
-        return \@substrates, \@products, undef;
+    unless ($self->pool->substrate_count) {
+        return;
     }
 
-    my ( $fragment, $site ) = _cut_random_fragment(
-        \@substrates, \@products, $self->protease
-    );
+    while (1) {
+        my ( $fragment, $site ) = $self->_cut_random_fragment();
 
-    if ( !$site ) {
-        push @products, $fragment;
-        return \@substrates, \@products, undef;
-    }
+        if ( $self->pool->substrate_count == 0 and !$site ) {
+            $self->pool->add_product($fragment);
+            return 0;
+        }
 
-    my $head = Proteolysis::Fragment->new(
-        parent_sequence => $fragment->parent_sequence,
-        start           => $fragment->start,
-        end             => $site + $fragment->start - 1,
-    );
+        if ( !$site ) {
+            $self->pool->add_product($fragment);
+            next;
+        }
 
-    my $tail = Proteolysis::Fragment->new(
-        parent_sequence => $fragment->parent_sequence,
-        start           => $site + $fragment->start,
-        end             => $fragment->end,
-    );
+        my $head = substr($fragment, 0, $site);
+        my $tail = substr($fragment, $site);
 
-    push @substrates, ( $head, $tail );
+        $self->pool->add_substrate($_) for ($head, $tail);
+        return 1;
+   };
 
-    return \@substrates, \@products, 1;
 }
 
 sub _cut_random_fragment {
-    my ( $substrates, $products, $protease ) = @_;
+    # This looks ok.
+    my $self = shift;
 
-    my $ids = int rand @$substrates;
-    my $fragment = splice @$substrates, $ids, 1;
-
-    my @sites = $protease->cleavage_sites( $fragment->seq );
-
+    my $fragment = $self->pool->take_random_substrate;
+    my @sites = $self->protease->cleavage_sites( $fragment );
     my $site  = $sites[rand @sites];
 
     return ( $fragment, $site );
