@@ -83,14 +83,14 @@ sub digest {
 sub _cut {
     my ( $self ) = @_;
 
-    unless ($self->pool->substrate_count) {
+    unless (%{$self->pool->substrates}) {
         return;
     }
 
     while (1) {
         my ( $fragment, $site ) = $self->_cut_random_fragment();
 
-        if ( $self->pool->substrate_count == 0 and !$site ) {
+        if ( !%{$self->pool->substrates} and !$site ) {
             $self->pool->add_product($fragment);
             return 0;
         }
