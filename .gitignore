@@ -2,5 +2,6 @@
 *.tmp
 *.bak
 ./blib/
+db
 Makefile
 pm_to_blib
