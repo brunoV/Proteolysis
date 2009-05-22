@@ -41,11 +41,20 @@ sub _build_ace_stats {
 
     my $stats = Statistics::Descriptive::Full->new;
 
-    $stats->add_data(
-        map  { $self->ace( $_->seq )             }
-        grep { $self->is_hypertensive( $_->seq ) }
-        ( $self->substrates, $self->products )
-    );
+    my @data;
+
+    no warnings 'uninitialized';
+    while ( my ( $p, $a ) = each %{$self->substrates}) {
+        next unless $self->is_hypertensive($p);
+        for ( 1 .. $a ) { push @data, $self->ace($p) }
+    }
+
+    while ( my ( $p, $a ) = each %{$self->products}) {
+        next unless $self->is_hypertensive($p);
+        for ( 1 .. $a ) { push @data, $self->ace($p) }
+    }
+
+    $stats->add_data(@data);
 
     return $stats;
 }
