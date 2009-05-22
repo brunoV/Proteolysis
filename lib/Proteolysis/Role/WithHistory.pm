@@ -8,7 +8,6 @@ use namespace::clean -except => 'meta';
 
 has previous => (
     is       => 'rw',
-    isa      => Pool,
     trigger  => sub { shift->_increase_number(@_) },
     clearer  => 'clear_previous',
 );
