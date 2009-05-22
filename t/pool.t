@@ -3,7 +3,6 @@ use warnings;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Test::More qw(no_plan);
 use Test::Exception;
-use Proteolysis::Fragment;
 
 use_ok 'Proteolysis::Pool';
 
@@ -13,21 +12,29 @@ isa_ok $pool, 'Proteolysis::Pool';
 
 my $seq = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
 
-my $fragment = Proteolysis::Fragment->new(
-    parent_sequence => $seq,
-);
-
 # Substrates
-lives_ok { $pool->add_substrate($fragment) }           'add_substrate';
-is         $pool->substrate_count, 1,                  'substrate_count';
-isa_ok     ${$pool->substrates}[0], 'Proteolysis::Fragment', 'substrates';
+lives_ok { $pool->add_substrate($seq) }           'add_substrate';
+lives_ok { $pool->add_substrate($seq) }           'add_substrate';
+is         $pool->substrate_count, 2,             'substrate_count';
+is         $pool->amount_of_substrate($seq), 2,   'amount_of_substrate';
+#isa_ok     ${$pool->substrates}->{0, 'Proteolysis::Fragment', 'substrates';
+
+my $taken = $pool->take_substrate($seq);
+is $taken,                           $seq, 'take_substrate';
+is $pool->amount_of_substrate($seq), 1,    'take_substrate';
+
+$taken = $pool->take_random_substrate;
+is $taken,                           $seq,  'take_random_substrate';
+is $pool->amount_of_substrate($seq), undef, 'take_random_substrate';
 
 # Products
-lives_ok { $pool->add_product  ($fragment) }           'add_product';
-is         $pool->product_count, 1,                    'product_count';
-is         $pool->count, 2,                            'total count';
+lives_ok { $pool->add_product  ($seq) }       'add_product';
+is         $pool->product_count, 1,           'product_count';
+is         $pool->amount_of_product($seq), 1, 'amount_of_product';
 
-isa_ok ${$pool->products}[0], 'Proteolysis::Fragment', 'products';
+is         $pool->count, 1,                   'total count';
+
+#isa_ok ${$pool->products}[0], 'Proteolysis::Fragment', 'products';
 
 my $second_pool = Proteolysis::Pool->new;
 

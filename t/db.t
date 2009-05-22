@@ -6,7 +6,6 @@ use Test::More qw(no_plan);
 use Test::Exception;
 use Proteolysis;
 use Proteolysis::Pool;
-use Proteolysis::Fragment;
 
 use ok 'Proteolysis::DB';
 
@@ -33,13 +32,7 @@ my $flask = Proteolysis->new(
 
 my $pool = Proteolysis::Pool->new;
 
-$pool->add_substrate(
-    Proteolysis::Fragment->new(
-        parent_sequence => $seq,        # $flask->protein,
-        start           => 1,
-        end             => length $seq, # $flask->protein,
-    )
-);
+$pool->add_substrate($seq);
 
 $flask->add_pool($pool);
 $flask->add_pool($pool);

@@ -5,8 +5,9 @@ use namespace::clean -except => 'meta';
 
 has length_stats => (
     is         => 'ro',
-    lazy_build => 1,
     traits     => [qw(KiokuDB::DoNotSerialize)],
+    lazy_build => 1,
+    clearer    => 'clear_length_stats',
     handles    => {
         mean_length         => 'mean',
         max_length          => 'max',
@@ -15,21 +16,23 @@ has length_stats => (
     }
 );
 
-sub length {
-    my $self = shift;
-
-    my $length_stats = $self->length_stats;
-    return $length_stats->mean;
-}
-
 sub _build_length_stats {
     my $self = shift;
 
     my $stats = Statistics::Descriptive::Full->new;
 
-    $stats->add_data(
-        map { $_->length } ( $self->substrates, $self->products )
-    );
+    my @data;
+
+    no warnings 'uninitialized';
+    while ( my ( $p, $a ) = each %{$self->substrates}) {
+        for ( 1 .. $a ) { push @data, length($p) }
+    }
+
+    while ( my ( $p, $a ) = each %{$self->products}) {
+        for ( 1 .. $a ) { push @data, length($p) }
+    }
+
+    $stats->add_data(@data);
 
     return $stats;
 }
