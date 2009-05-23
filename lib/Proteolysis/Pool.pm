@@ -131,8 +131,14 @@ sub count {
 sub take_random_substrate {
     my $self = shift;
 
-    my $substrate = _pick_random_substrate(\%{$self->substrates});
+    my $substrate = _pick_random_substrate_c(\%{$self->substrates});
     $self->take_substrate($substrate);
+    return $substrate;
+}
+
+sub _pick_random_substrate {
+    my $self      = shift;
+    my $substrate = _pick_random_substrate_c(\%{$self->substrates});
     return $substrate;
 }
 
@@ -158,7 +164,7 @@ main() {
     srand(time(0));
 }
 
-char* _pick_random_substrate(SV* hash_ref) {
+char* _pick_random_substrate_c(SV* hash_ref) {
     HV* hash;
     HE* hash_entry;
     int num_keys, i;

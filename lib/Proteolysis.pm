@@ -84,41 +84,43 @@ sub digest {
 sub _cut {
     my ( $self ) = @_;
 
-    unless (%{$self->pool->substrates}) {
-        return;
-    }
+    unless (%{$self->pool->substrates}) { return; }
 
-    while (1) {
-        my ( $fragment, $site ) = $self->_cut_random_fragment();
+    my ( $head, $tail ) = $self->_cut_random_fragment;
 
-        if ( !%{$self->pool->substrates} and !$site ) {
-            $self->pool->add_product($fragment);
-            return 0;
-        }
+    ( $head and $tail ) or return;
 
-        if ( !$site ) {
-            $self->pool->add_product($fragment);
-            next;
-        }
+    $self->pool->add_substrate($_) for ($head, $tail);
 
-        my $head = substr($fragment, 0, $site);
-        my $tail = substr($fragment, $site);
-
-        $self->pool->add_substrate($_) for ($head, $tail);
-        return 1;
-   };
+    return 1;
 
 }
 
 sub _cut_random_fragment {
-    # This looks ok.
     my $self = shift;
+    my $pool = $self->pool;
 
-    my $fragment = $self->pool->take_random_substrate;
+    my $fragment  = $pool->_pick_random_substrate;
+
+    until ( $self->protease->is_substrate($fragment) ) {
+
+        my $amount = $pool->delete_substrate($fragment);
+        $pool->add_product( $fragment, $amount );
+
+        return unless (%{$pool->substrates});
+
+        $fragment  = $pool->_pick_random_substrate;
+    }
+
+    $pool->take_substrate( $fragment );
+
     my @sites = $self->protease->cleavage_sites( $fragment );
     my $site  = $sites[rand @sites];
 
-    return ( $fragment, $site );
+    my $head = substr($fragment, 0, $site);
+    my $tail = substr($fragment, $site);
+
+    return $head, $tail;
 }
 
 sub _resort_pools {
