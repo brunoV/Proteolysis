@@ -151,7 +151,7 @@ sub clone {
 use Inline C => <<'END_OF_C_CODE';
 
 main() {
-    strand(time(0));
+    srand(time(0));
 }
 
 char* _pick_random_substrate(SV* hash_ref) {
@@ -162,8 +162,8 @@ char* _pick_random_substrate(SV* hash_ref) {
     SV* sv_val;
 
     int random_number;
-    int sum = 0;
-    int v;
+    unsigned sum = 0;
+    unsigned v;
     char* k;
     char* return_value;
 
