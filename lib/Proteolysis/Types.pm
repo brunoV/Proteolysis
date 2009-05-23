@@ -19,4 +19,4 @@ coerce Protease,
         Bio::Protease->new(specificity => $_);
     };
 
-1;
+__PACKAGE__->meta->make_immutable;
