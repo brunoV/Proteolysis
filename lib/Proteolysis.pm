@@ -14,7 +14,8 @@ has protease => (
     isa      => Protease,
     coerce   => 1,
     handles  => [qw(cleavage_sites)],
-    traits   => [qw(KiokuDB::DoNotSerialize)]
+    traits   => [qw(KiokuDB::DoNotSerialize)],
+    trigger  => \&_resort_pools,
 );
 
 has pool => (
@@ -58,8 +59,8 @@ sub digest {
     my ($self, $times) = @_;
     $times //= -1;
 
-    $self->protease              or return;
-    $self->pool->substrate_count or return;
+    $self->protease && $self->pool && $self->pool->substrates
+        or return;
 
     my $d = int( 1 / $self->detail_level );
 
@@ -118,6 +119,63 @@ sub _cut_random_fragment {
     my $site  = $sites[rand @sites];
 
     return ( $fragment, $site );
+}
+
+sub _resort_pools {
+    my ( $self, $protease) = @_;
+
+    # A protease has been set, and we have all these pools that have
+    # their peptides divided into "substrates" and "products".
+    # Basically, review everything.
+    my $pool = $self->pool // return;
+
+    do {
+        _resort_pool( $pool, $protease );
+    } while ( $pool = $pool->previous );
+
+}
+
+sub _resort_pool {
+    my ( $pool, $protease ) = @_;
+
+    # Combine substrates and products into substrates.
+    _merge(\%{$pool->substrates}, \%{$pool->products});
+
+    # put all non-cleavable substrates into products.
+    _filter_substrates($pool, $protease);
+}
+
+sub _merge {
+    # Take two hash references that are assumed to be non nested and
+    # contain numerical values. Leftmost hash will contain the sum of
+    # the values of both hashes, and the rightmost hash will be left
+    # empty.
+
+    my ($left, $right) = @_;
+
+    foreach my $key (keys %$left) {
+        next unless (defined $right->{$key});
+        $left->{$key} += $right->{$key};
+        delete $right->{$key};
+    }
+
+    foreach my $key (keys %$right) {
+        $left->{$key} = $right->{$key};
+        delete $right->{$key};
+    }
+
+    return 1;
+}
+
+sub _filter_substrates {
+    my ($pool, $protease) = @_;
+
+    foreach my $s (keys %{$pool->substrates}) {
+        next if ($protease->is_substrate($s));
+        $pool->add_product($s => $pool->delete_substrate($s));
+    }
+
+    return 1;
 }
 
 __PACKAGE__->meta->make_immutable;

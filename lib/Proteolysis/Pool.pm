@@ -32,17 +32,18 @@ has 'substrates' => (
 );
 
 sub add_substrate {
-    my ( $self, $s ) = @_;
+    my ( $self, $s, $amount ) = @_;
 
-    my $amount;
+    $amount //= 1;
+    my $total;
 
     if ($self->substrate_exists($s)) {
-        $amount = $self->amount_of_substrate($s) + 1;
+        $total = $self->amount_of_substrate($s) + $amount;
     } else {
-        $amount = 1;
+        $total = $amount;
     }
 
-    $self->_set_substrate( $s => $amount );
+    $self->_set_substrate( $s => $total );
 }
 
 sub substrate_count {
@@ -57,12 +58,14 @@ sub substrate_count {
 }
 
 sub take_substrate {
-    my ( $self, $s ) = @_;
+    my ( $self, $s, $amount ) = @_;
+
+    $amount //= 1;
 
     if ( $self->substrate_exists($s) ) {
-        $self->_set_substrate($s => $self->amount_of_substrate($s) - 1);
+        $self->_set_substrate($s => $self->amount_of_substrate($s) - $amount);
 
-        if ( $self->amount_of_substrate($s) == 0 ) {
+        if ( $self->amount_of_substrate($s) <= 0 ) {
             $self->delete_substrate($s)
         }
 
@@ -97,17 +100,18 @@ sub product_count {
 }
 
 sub add_product {
-    my ( $self, $p ) = @_;
+    my ( $self, $p, $amount) = @_;
 
-    my $amount;
+    $amount //= 1;
+    my $total;
 
     if ($self->product_exists($p)) {
-        $amount = $self->amount_of_product($p) + 1;
+        $total = $self->amount_of_product($p) + $amount;
     } else {
-        $amount = 1;
+        $total = $amount;
     }
 
-    $self->_set_product( $p => $amount );
+    $self->_set_product( $p => $total );
 }
 
 has '+previous' => (
@@ -191,5 +195,6 @@ char* _pick_random_substrate(SV* hash_ref) {
 }
 
 END_OF_C_CODE
+
 __PACKAGE__->meta->make_immutable;
 1;
