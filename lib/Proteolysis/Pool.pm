@@ -5,7 +5,7 @@ use Moose;
 use Proteolysis::Types   qw(Pool Fragment);
 use MooseX::Types::Moose qw(HashRef);
 use KiokuDB::Class;
-use namespace::clean -except => 'meta';
+use namespace::autoclean;
 use Storable qw(dclone);
 
 with qw(Proteolysis::Role::WithHistory Proteolysis::Role::Length
@@ -197,4 +197,3 @@ char* _pick_random_substrate(SV* hash_ref) {
 END_OF_C_CODE
 
 __PACKAGE__->meta->make_immutable;
-1;

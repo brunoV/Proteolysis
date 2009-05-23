@@ -4,7 +4,7 @@ use Modern::Perl;
 use Moose::Role;
 use Proteolysis::Types   qw( Pool );
 use MooseX::Types::Moose qw( Num  );
-use namespace::clean -except => 'meta';
+use namespace::autoclean;
 
 sub dh {
     my ($self, $pool) = @_;

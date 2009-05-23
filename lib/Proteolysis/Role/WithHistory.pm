@@ -4,7 +4,7 @@ use Moose::Role;;
 use Modern::Perl;
 use MooseX::Types::Common::Numeric qw(PositiveInt);
 use Proteolysis::Types qw(Pool);
-use namespace::clean -except => 'meta';
+use namespace::autoclean;
 
 has previous => (
     is       => 'rw',

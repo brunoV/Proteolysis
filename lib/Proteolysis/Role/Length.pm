@@ -1,7 +1,7 @@
 package Proteolysis::Role::Length;
 use Moose::Role;
 use Statistics::Descriptive;
-use namespace::clean -except => 'meta';
+use namespace::autoclean;
 
 has length_stats => (
     is         => 'ro',

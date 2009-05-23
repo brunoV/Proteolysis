@@ -5,7 +5,7 @@ use Proteolysis::Pool;
 use Proteolysis::Types qw(Protease);
 use MooseX::Types::Moose qw(Num);
 use KiokuDB::Class;
-use namespace::clean -except => 'meta';
+use namespace::autoclean;
 
 with qw(Proteolysis::Role::DH MooseX::Object::Pluggable);
 
@@ -179,4 +179,3 @@ sub _filter_substrates {
 }
 
 __PACKAGE__->meta->make_immutable;
-1;

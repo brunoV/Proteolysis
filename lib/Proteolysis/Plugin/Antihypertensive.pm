@@ -1,6 +1,6 @@
 package Proteolysis::Plugin::Antihypertensive;
 use Moose::Role;
-use namespace::clean -except => 'meta';
+use namespace::autoclean;
 
 around pool => sub {
     my ( $orig, $self ) = @_;

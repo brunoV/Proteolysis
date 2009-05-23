@@ -5,7 +5,7 @@ use Statistics::Descriptive;
 use autodie qw(open);
 use Dir::Self;
 use YAML::Any;
-use namespace::clean -except => 'meta';
+use namespace::autoclean;
 
 has db => (
     is         => 'ro',
