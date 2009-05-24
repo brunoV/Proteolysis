@@ -23,16 +23,12 @@ my $taken = $pool->take_substrate($seq);
 is $taken,                           $seq, 'take_substrate';
 is $pool->amount_of_substrate($seq), 1,    'take_substrate';
 
-$taken = $pool->take_random_substrate;
-is $taken,                           $seq,  'take_random_substrate';
-is $pool->amount_of_substrate($seq), undef, 'take_random_substrate';
-
 # Products
 lives_ok { $pool->add_product  ($seq) }       'add_product';
 is         $pool->product_count, 1,           'product_count';
 is         $pool->amount_of_product($seq), 1, 'amount_of_product';
 
-is         $pool->count, 1,                   'total count';
+is         $pool->count, 2,                   'total count';
 
 #isa_ok ${$pool->products}[0], 'Proteolysis::Fragment', 'products';
 
