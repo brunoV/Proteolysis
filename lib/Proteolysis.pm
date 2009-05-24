@@ -99,7 +99,7 @@ sub _cut_random_fragment {
     my $self = shift;
     my $pool = $self->pool;
 
-    my $fragment  = $pool->_pick_random_substrate;
+    my $fragment  = _pick_random_substrate(\%{$pool->substrates});
 
     until ( $self->protease->is_substrate($fragment) ) {
 
@@ -108,7 +108,7 @@ sub _cut_random_fragment {
 
         return unless (%{$pool->substrates});
 
-        $fragment  = $pool->_pick_random_substrate;
+        $fragment = _pick_random_substrate(\%{$pool->substrates});
     }
 
     $pool->take_substrate( $fragment );
@@ -178,5 +178,45 @@ sub _filter_substrates {
 
     return 1;
 }
+
+use Inline C => << 'EOC';
+
+char* _pick_random_substrate(SV* hash_ref) {
+    HV* hash;
+    HE* hash_entry;
+    int num_keys, i;
+    SV* sv_key;
+    SV* sv_val;
+
+    int random_number;
+    unsigned sum = 0;
+    unsigned v;
+    char* k;
+    char* return_value;
+    srand(time(0));
+
+    if (! SvROK(hash_ref))
+        croak("hash_ref is not a reference");
+
+    hash = (HV*)SvRV(hash_ref);
+    num_keys = hv_iterinit(hash);
+
+    for (i = 0; i < num_keys; i++) {
+        hash_entry = hv_iternext(hash);
+
+        k = SvPV_nolen(hv_iterkeysv(hash_entry));
+        v = SvIV(hv_iterval(hash, hash_entry));
+
+        sum += v;
+        random_number = rand() % sum;
+
+        if ( random_number < v ) {
+            return_value = k;
+        }
+    }
+
+    return return_value;
+}
+EOC
 
 __PACKAGE__->meta->make_immutable;

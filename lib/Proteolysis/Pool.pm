@@ -129,78 +129,15 @@ sub count {
     return $substrate_count + $product_count;
 }
 
-sub take_random_substrate {
-    my $self = shift;
-
-    my $substrate = _pick_random_substrate_c(\%{$self->substrates});
-    $self->take_substrate($substrate);
-    return $substrate;
-}
-
-sub _pick_random_substrate {
-    my $self      = shift;
-    my $substrate = _pick_random_substrate_c(\%{$self->substrates});
-    return $substrate;
-}
-
 sub clone {
     my $self = shift;
 
     my $copy = __PACKAGE__->new;
 
-    $copy->substrates( {%{$self->substrates}} );
-    $copy->products  ( {%{$self->products  }} );
-
-    #my $copy = dclone $self;
-
-    #$copy->clear_previous;
-    #$copy->clear_length_stats;
+    $copy->substrates( {$self->substrates} );
+    $copy->products  ( {$self->products}   );
 
     return $copy;
 }
-
-use Inline C => <<'END_OF_C_CODE';
-
-main() {
-    srand(time(0));
-}
-
-char* _pick_random_substrate_c(SV* hash_ref) {
-    HV* hash;
-    HE* hash_entry;
-    int num_keys, i;
-    SV* sv_key;
-    SV* sv_val;
-
-    int random_number;
-    unsigned sum = 0;
-    unsigned v;
-    char* k;
-    char* return_value;
-
-    if (! SvROK(hash_ref))
-        croak("hash_ref is not a reference");
-
-    hash = (HV*)SvRV(hash_ref);
-    num_keys = hv_iterinit(hash);
-
-    for (i = 0; i < num_keys; i++) {
-        hash_entry = hv_iternext(hash);
-
-        k = SvPV_nolen(hv_iterkeysv(hash_entry));
-        v = SvIV(hv_iterval(hash, hash_entry));
-
-        sum += v;
-        random_number = rand() % sum;
-
-        if ( random_number < v ) {
-            return_value = k;
-        }
-    }
-
-    return return_value;
-}
-
-END_OF_C_CODE
 
 __PACKAGE__->meta->make_immutable;
