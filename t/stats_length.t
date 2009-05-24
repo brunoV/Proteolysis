@@ -24,14 +24,6 @@ use lib qw(/home/brunov/lib/Proteolysis/lib);
         default => sub { {'A' => 1} },
     );
 
-    sub amount_of_substrate {
-        return 1;
-    }
-
-    sub amount_of_product {
-        return 1;
-    }
-
 }
 
 my $bogus = Bogus->new;
