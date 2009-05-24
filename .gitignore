@@ -6,3 +6,4 @@ db
 Makefile
 pm_to_blib
 _Inline
+cover_db
