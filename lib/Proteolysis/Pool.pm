@@ -62,16 +62,17 @@ sub take_substrate {
 
     $amount //= 1;
 
-    if ( $self->substrate_exists($s) ) {
-        $self->_set_substrate($s => $self->amount_of_substrate($s) - $amount);
+    $self->substrate_exists($s) or return;
 
-        if ( $self->amount_of_substrate($s) <= 0 ) {
-            $self->delete_substrate($s)
-        }
+    $self->_set_substrate(
+        $s => $self->amount_of_substrate($s) - $amount
+    );
 
-        return $s;
+    if ( $self->amount_of_substrate($s) <= 0 ) {
+        $self->delete_substrate($s)
     }
-    else { return }
+
+    return $s;
 }
 
 has 'products' => (

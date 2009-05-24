@@ -69,8 +69,7 @@ sub digest {
         my $did_cut = $self->_cut();
         last unless ($did_cut);
 
-        --$times;
-        my $skip = $times % $d;
+        my $skip = --$times % $d;
 
         if ($did_cut and !$skip) {
             my $new_pool = $self->pool->clone;
