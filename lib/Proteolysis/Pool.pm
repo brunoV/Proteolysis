@@ -6,7 +6,6 @@ use Proteolysis::Types   qw(Pool Fragment);
 use MooseX::Types::Moose qw(HashRef);
 use KiokuDB::Class;
 use namespace::autoclean;
-use Storable qw(dclone);
 
 with qw(Proteolysis::Role::WithHistory Proteolysis::Role::Length
     MooseX::Object::Pluggable);
