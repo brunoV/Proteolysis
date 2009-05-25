@@ -22,7 +22,6 @@ sub _increase_number {
     my ($self, $previous) = @_;
 
     my $prev_no = $previous->number;
-    $prev_no  //= '0';
 
     $self->number(++$prev_no);
 }
