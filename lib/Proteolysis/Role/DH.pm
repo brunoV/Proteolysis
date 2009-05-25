@@ -10,14 +10,22 @@ sub dh {
     my ($self, $pool) = @_;
 
     $pool //= $self->pool // return;
-    my $first_pool = $self->_get_first_pool;
 
-    my $h  = _peptidic_bond_count( $pool       );
-    my $h0 = _peptidic_bond_count( $first_pool ) || return;
+    my $h  = _peptidic_bond_count( $pool );
+    my $h0 = $self->_h0 || return;
 
     my $dh = 100 * ( 1 - $h / $h0 );
 
     return $dh;
+}
+
+sub _h0 {
+    my $self = shift;
+
+    my $first_pool = $self->_get_first_pool;
+    my $h0 = _peptidic_bond_count( $first_pool ) || return;
+
+    return $h0;
 }
 
 sub _get_first_pool {
