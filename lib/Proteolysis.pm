@@ -64,10 +64,12 @@ sub digest {
 
     my $d = int( 1 / $self->detail_level );
 
+    $self->add_pool($self->pool->clone);
+
     while ($times) {
 
         my $did_cut = $self->_cut();
-        last unless ($did_cut);
+        return unless ($did_cut);
 
         my $skip = --$times % $d;
 
