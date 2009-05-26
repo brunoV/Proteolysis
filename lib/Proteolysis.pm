@@ -85,7 +85,7 @@ sub digest {
 sub _cut {
     my ( $self ) = @_;
 
-    unless (%{$self->pool->substrates}) { return; }
+    unless ( %{$self->pool->substrates} ) { return; }
 
     my ( $head, $tail ) = $self->_cut_random_fragment;
 
@@ -108,7 +108,7 @@ sub _cut_random_fragment {
         my $amount = $pool->delete_substrate($fragment);
         $pool->add_product( $fragment, $amount );
 
-        return unless (%{$pool->substrates});
+        return unless ( %{$pool->substrates} );
 
         $fragment = _pick_random_substrate(\%{$pool->substrates});
     }

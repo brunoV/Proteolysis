@@ -184,17 +184,6 @@ sub calculate_detail_level {
     return $detail_level;
 }
 
-sub calculate_steps {
-    my ( $self, $flask ) = @_;
-
-    my $dh = $self->dh / 100;
-    my $h0 = $flask->_h0;
-
-    my $steps = int($dh * $h0);
-
-    return $steps;
-}
-
 sub store  {
 
     my ($self, $flask) = @_;
