@@ -14,7 +14,6 @@ has protease => (
     isa      => Protease,
     coerce   => 1,
     handles  => [qw(cleavage_sites)],
-    traits   => [qw(KiokuDB::DoNotSerialize)],
     trigger  => \&_resort_pools,
 );
 

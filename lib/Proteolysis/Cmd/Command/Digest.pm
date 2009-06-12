@@ -105,6 +105,8 @@ sub build_flask {
     my $self = shift;
 
     my $flask = Proteolysis->new( protease => $self->protease );
+    $flask->protease->name( $self->protease );
+
     my $pool  = Proteolysis::Pool->new;
 
     my $seqs  = $self->load_sequences;

@@ -74,4 +74,27 @@ sub ace {
     else { return }
 }
 
+sub mean_inverse_ace {
+    my $self = shift;
+
+    my $inverse_mean;
+
+    foreach my $data_point ($self->ace_stats->get_data) {
+        next unless ($data_point);
+        eval { $inverse_mean += 1/$data_point };
+    }
+
+    return $inverse_mean;
+}
+
+sub inverse_ace {
+    my ( $self, $seq, $amount ) = @_;
+
+    return unless ($self->is_hypertensive($seq));
+    $self->ace($seq) || return;
+
+    return $amount / ( $self->ace($seq) );
+
+}
+
 1;
