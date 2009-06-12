@@ -102,24 +102,24 @@ sub _cut_random_fragment {
     my $pool = $self->pool;
 
     my $fragment  = _pick_random_substrate(\%{$pool->substrates});
+    my $protease  = $self->protease;
 
-    until ( $self->protease->is_substrate($fragment) ) {
+    until ( $protease->is_substrate($fragment) ) {
 
         my $amount = $pool->delete_substrate($fragment);
         $pool->add_product( $fragment, $amount );
 
-        return unless ( %{$pool->substrates} );
+        return if ( !%{$pool->substrates} );
 
         $fragment = _pick_random_substrate(\%{$pool->substrates});
     }
 
     $pool->take_substrate( $fragment );
 
-    my @sites = $self->protease->cleavage_sites( $fragment );
+    my @sites = $protease->cleavage_sites( $fragment );
     my $site  = $sites[rand @sites];
 
-    my $head = substr($fragment, 0, $site);
-    my $tail = substr($fragment, $site);
+    my ($head, $tail) = $protease->cut($fragment, $site);
 
     return $head, $tail;
 }
