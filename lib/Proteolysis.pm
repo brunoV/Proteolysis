@@ -2,8 +2,8 @@ package Proteolysis;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Moose;
 use Proteolysis::Pool;
-use Proteolysis::Types qw(Protease);
-use MooseX::Types::Moose qw(Num);
+use Proteolysis::Types   qw(Protease);
+use MooseX::Types::Moose qw(Num Str);
 use KiokuDB::Class;
 use namespace::autoclean;
 
