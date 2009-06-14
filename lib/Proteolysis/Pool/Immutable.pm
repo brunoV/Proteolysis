@@ -1,21 +1,18 @@
-package Proteolysis::Pool;
+package Proteolysis::Pool::Immutable;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Modern::Perl;
 use Moose;
-use Proteolysis::Types             qw(Pool Fragment);
+use Proteolysis::Types qw(Pool Fragment);
 use MooseX::Types::Common::Numeric qw(PositiveInt);
 use KiokuDB::Class;
 use namespace::autoclean;
 require Proteolysis::Pool::Mutable;
 
-extends 'Proteolysis::PoolI';
+extends 'Proteolysis::Pool';
+with qw(Proteolysis::Role::WithHistory Proteolysis::Role::Length
+    MooseX::Object::Pluggable);
 
-with qw(
-    Proteolysis::Role::WithHistory Proteolysis::Role::Length
-    Proteolysis::Role::DH MooseX::Object::Pluggable
-);
-
-has '+substrates' => ( traits => [qw(KiokuDB::Lazy)] );
+has '+substrates' => ( lazy => 1 );
 
 has '+length_stats' => (
     traits  => [qw(KiokuDB::DoNotSerialize)],

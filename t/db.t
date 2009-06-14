@@ -14,7 +14,7 @@ unlink 'db';
 my $dbname = 'db';
 my $db;
 
-lives_ok { 
+lives_ok {
     $db = Proteolysis::DB->new(
         dsn => 'bdb:dir=' . $dbname,
     );
@@ -25,16 +25,15 @@ ok -e $dbname, 'Database created ok';
 
 my $seq   = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
 
-my $flask = Proteolysis->new(
-    protease => 'trypsin',
-    protein  => $seq,
+my $pool = Proteolysis::Pool->new(
+    substrate => { $seq => 1 }
 );
 
-my $pool = Proteolysis::Pool->new;
+my $flask = Proteolysis->new(
+    protease => 'trypsin',
+    pool     => $pool,
+);
 
-$pool->add_substrate($seq);
-
-$flask->add_pool($pool);
 $flask->add_pool($pool);
 
 my $id;

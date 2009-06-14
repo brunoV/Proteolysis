@@ -5,7 +5,6 @@ use namespace::autoclean;
 
 has length_stats => (
     is         => 'ro',
-    traits     => [qw(KiokuDB::DoNotSerialize)],
     lazy_build => 1,
     clearer    => 'clear_length_stats',
     handles    => {
@@ -25,10 +24,6 @@ sub _build_length_stats {
 
     no warnings 'uninitialized';
     while ( my ( $p, $a ) = each %{$self->substrates}) {
-        for ( 1 .. $a ) { push @data, length($p) }
-    }
-
-    while ( my ( $p, $a ) = each %{$self->products}) {
         for ( 1 .. $a ) { push @data, length($p) }
     }
 

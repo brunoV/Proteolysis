@@ -10,6 +10,7 @@ use namespace::autoclean;
 has db => (
     is         => 'ro',
     isa        => HashRef,
+    traits     => [qw(KiokuDB::DoNotSerialize)],
     lazy_build => 1,
 );
 
@@ -45,11 +46,6 @@ sub _build_ace_stats {
 
     no warnings 'uninitialized';
     while ( my ( $p, $a ) = each %{$self->substrates}) {
-        next unless $self->is_hypertensive($p);
-        for ( 1 .. $a ) { push @data, $self->ace($p) }
-    }
-
-    while ( my ( $p, $a ) = each %{$self->products}) {
         next unless $self->is_hypertensive($p);
         for ( 1 .. $a ) { push @data, $self->ace($p) }
     }

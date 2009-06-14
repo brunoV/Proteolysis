@@ -9,22 +9,22 @@ use List::MoreUtils qw(uniq);
 use ok 'Proteolysis';
 
 my $seq = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
+
+my $pool = Proteolysis::Pool->new(
+    substrates => { $seq => 1 }
+);
+
 my $hcl = Bio::Protease->new(specificity => 'hcl');
 
-my $flask = Proteolysis->new( protease => $hcl );
+my $flask = Proteolysis->new( protease => $hcl, pool => $pool );
 
 isa_ok $flask,           'Proteolysis';
 isa_ok $flask->protease, 'Bio::Protease';
 
-my $pool = Proteolysis::Pool->new;
-
-$pool->add_substrate($seq);
-$flask->add_pool($pool);
-
 lives_ok { $flask->digest() } "lived through infinite digestion";
 
 my @correct_products = uniq sort $hcl->digest($seq);
-my @products         = sort keys %{$flask->pool->products};
+my @products         = sort keys %{$flask->pool->substrates};
 
 is_deeply(\@products, \@correct_products);
 
@@ -38,14 +38,9 @@ ok     !$flask->pool->previous;
 # Some edge case checking
 undef for ($flask, $pool);
 
-$flask = Proteolysis->new;
-
-lives_ok { $flask->digest } 'digest with nothing lives';
-
-$flask->protease('trypsin');
-
-lives_ok { $flask->digest } 'digest without pools lives';
-
-$flask->add_pool( Proteolysis::Pool->new );
+$flask = Proteolysis->new(
+    protease => 'hcl',
+    pool     => Proteolysis::Pool->new( substrates => { } ),
+);
 
 lives_ok { $flask->digest } 'digest with empty pool lives';

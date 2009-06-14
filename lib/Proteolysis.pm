@@ -2,31 +2,47 @@ package Proteolysis;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Moose;
 use Proteolysis::Pool;
-use Proteolysis::Types   qw(Protease);
+use Proteolysis::Types   qw(Protease Pool MutablePool);
 use MooseX::Types::Moose qw(Num Str);
 use KiokuDB::Class;
 use namespace::autoclean;
 
-with qw(Proteolysis::Role::DH MooseX::Object::Pluggable);
+with qw(MooseX::Object::Pluggable);
 
 has protease => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => Protease,
+    required => 1,
     coerce   => 1,
     handles  => [qw(cleavage_sites)],
-    trigger  => \&_resort_pools,
 );
 
 has pool => (
-    is      => 'ro',
-    writer  => '_set_pool',
-    traits  => [qw(KiokuDB::Lazy)],
-    isa     => 'Proteolysis::Pool',
-    clearer => 'clear_pool',
-    handles => {
+    is       => 'ro',
+    writer   => '_set_pool',
+    traits   => [qw(KiokuDB::Lazy)],
+    required => 1,
+    isa      => Pool,
+    clearer  => 'clear_pool',
+    handles  => {
         clear_previous_pools => 'clear_previous',
+        dh                   => 'dh',
     }
 );
+
+has _last_pool => (
+    is => 'rw',
+    isa => MutablePool,
+    lazy_build => 1,
+);
+
+sub _build__last_pool {
+    my $self = shift;
+
+    my $mutable_clone = $self->pool->clone_mutable;
+
+    return $mutable_clone;
+}
 
 has detail_level => (
     is      => 'rw',
@@ -58,12 +74,10 @@ sub digest {
     my ($self, $times) = @_;
     $times //= -1;
 
-    $self->protease && $self->pool && $self->pool->substrates
+    $self->protease && $self->_last_pool && $self->_last_pool->substrates
         or return;
 
     my $d = int( 1 / $self->detail_level );
-
-    $self->add_pool($self->pool->clone);
 
     while ($times) {
 
@@ -73,7 +87,7 @@ sub digest {
         my $skip = --$times % $d;
 
         if ($did_cut and !$skip) {
-            my $new_pool = $self->pool->clone;
+            my $new_pool = $self->_last_pool->clone_immutable;
             $self->add_pool($new_pool);
         }
     }
@@ -84,13 +98,13 @@ sub digest {
 sub _cut {
     my ( $self ) = @_;
 
-    unless ( %{$self->pool->substrates} ) { return; }
+    unless ( %{$self->_last_pool->substrates} ) { return; }
 
     my ( $head, $tail ) = $self->_cut_random_fragment;
 
     ( $head and $tail ) or return;
 
-    $self->pool->add_substrate($_) for ($head, $tail);
+    $self->_last_pool->add_substrate($_) for ($head, $tail);
 
     return 1;
 
@@ -98,7 +112,7 @@ sub _cut {
 
 sub _cut_random_fragment {
     my $self = shift;
-    my $pool = $self->pool;
+    my $pool = $self->_last_pool;
 
     my $fragment  = _pick_random_substrate(\%{$pool->substrates});
     my $protease  = $self->protease;
@@ -121,63 +135,6 @@ sub _cut_random_fragment {
     my ($head, $tail) = $protease->cut($fragment, $site);
 
     return $head, $tail;
-}
-
-sub _resort_pools {
-    my ( $self, $protease) = @_;
-
-    # A protease has been set, and we have all these pools that have
-    # their peptides divided into "substrates" and "products".
-    # Basically, review everything.
-    my $pool = $self->pool // return;
-
-    do {
-        _resort_pool( $pool, $protease );
-    } while ( $pool = $pool->previous );
-
-}
-
-sub _resort_pool {
-    my ( $pool, $protease ) = @_;
-
-    # Combine substrates and products into substrates.
-    _merge(\%{$pool->substrates}, \%{$pool->products});
-
-    # put all non-cleavable substrates into products.
-    _filter_substrates($pool, $protease);
-}
-
-sub _merge {
-    # Take two hash references that are assumed to be non nested and
-    # contain numerical values. Leftmost hash will contain the sum of
-    # the values of both hashes, and the rightmost hash will be left
-    # empty.
-
-    my ($left, $right) = @_;
-
-    foreach my $key (keys %$left) {
-        next unless (defined $right->{$key});
-        $left->{$key} += $right->{$key};
-        delete $right->{$key};
-    }
-
-    foreach my $key (keys %$right) {
-        $left->{$key} = $right->{$key};
-        delete $right->{$key};
-    }
-
-    return 1;
-}
-
-sub _filter_substrates {
-    my ($pool, $protease) = @_;
-
-    foreach my $s (keys %{$pool->substrates}) {
-        next if ($protease->is_substrate($s));
-        $pool->add_product($s => $pool->delete_substrate($s));
-    }
-
-    return 1;
 }
 
 use Inline C => << 'EOC';

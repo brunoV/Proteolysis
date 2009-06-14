@@ -5,9 +5,9 @@ use MooseX::Declare;
 
 use Proteolysis::Pool;
 
-my $pool = Proteolysis::Pool->new;
-$pool->add_substrate('IKP');
-$pool->add_product  ('LEP');
+my $pool = Proteolysis::Pool->new(
+    substrates => { 'IKP' => 1, 'LEP' => 1 }
+);
 
 $pool->_plugin_app_ns(['Proteolysis::Pool']);
 lives_ok { $pool->load_plugin('Antihypertensive') };

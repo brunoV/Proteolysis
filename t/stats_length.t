@@ -7,21 +7,15 @@ use lib qw(/home/brunov/lib/Proteolysis/lib);
     with 'Proteolysis::Role::Length';
     use MooseX::Types::Moose qw(HashRef);
 
-    has [qw(substrate_count product_count)] => (
+    has substrate_count => (
         is      => 'rw',
-        default => 1,
+        default => 2,
     );
 
     has substrates => (
         is      => 'rw',
         isa     => HashRef,
-        default => sub { {'AAA' => 1} },
-    );
-
-    has products => (
-        is      => 'rw',
-        isa     => HashRef,
-        default => sub { {'A' => 1} },
+        default => sub { {'AAA' => 1, 'A' => 1} },
     );
 
 }

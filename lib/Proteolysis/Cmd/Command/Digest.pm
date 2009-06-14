@@ -3,13 +3,15 @@ use Moose;
 use Modern::Perl;
 use namespace::autoclean;
 
+use lib qw(/home/brunov/lib/Proteolysis/lib);
 use MooseX::Types::Moose           qw(Str Num Bool);
-use MooseX::Types::Common::Numeric qw(PositiveInt);
-use MooseX::Types::Path::Class     qw(File Dir);
+use MooseX::Types::Common::Numeric qw(PositiveInt );
+use MooseX::Types::Path::Class     qw(File Dir    );
+use Proteolysis::Types             qw(Percentage  );
+
 use Moose::Util::TypeConstraints;
 use File::Basename qw(basename);
 
-use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Class::Autouse
     qw(Bio::Protease Proteolysis Proteolysis::DB Proteolysis::Pool
     Bio::SeqIO);
@@ -49,14 +51,9 @@ has protease => (
     default       => 'hcl',
 );
 
-subtype 'Percentage',
-    as 'Num',
-    where { $_[0] > 0 && $_[0] <= 100 },
-    message { "% of hydrolysis should be a number between 0 and 100\n" };
-
 has dh => (
     is  => 'rw',
-    isa => 'Percentage',
+    isa => Percentage,
     traits        => [qw(Getopt)],
     cmd_aliases   => 'h',
     documentation => 'Degree of hydrolysis to achieve (default 100)',
@@ -104,15 +101,19 @@ sub run {
 sub build_flask {
     my $self = shift;
 
-    my $flask = Proteolysis->new( protease => $self->protease );
+    my $seqs       = $self->load_sequences;
+    my %substrates = map { $_, $self->amount } @$seqs;
+
+    my $pool = Proteolysis::Pool->new(
+        substrates => \%substrates,
+    );
+
+    my $flask = Proteolysis->new(
+        protease => $self->protease,
+        pool     => $pool,
+    );
+
     $flask->protease->name( $self->protease );
-
-    my $pool  = Proteolysis::Pool->new;
-
-    my $seqs  = $self->load_sequences;
-    $pool->add_substrate($_, $self->amount) for @$seqs;
-
-    $flask->add_pool($pool);
 
     my $detail_level = $self->calculate_detail_level($flask);
     $flask->detail_level($detail_level);
@@ -177,7 +178,7 @@ sub calculate_detail_level {
 
     my $ss = $self->snapshots;
     my $dh = $self->dh / 100;
-    my $h0 = $flask->_h0;
+    my $h0 = $flask->pool->_h0;
 
     my $detail_level = $ss / ( $dh * $h0 );
 

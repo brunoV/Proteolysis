@@ -7,10 +7,8 @@ use Test::Exception;
 use_ok 'Proteolysis';
 use_ok 'Proteolysis::Pool';
 
-my $flask = Proteolysis->new;
 my $pool  = Proteolysis::Pool->new;
-
-$flask->add_pool($pool);
+my $flask = Proteolysis->new( pool => $pool, protease => 'hcl' );
 
 isa_ok  $flask->pool,       'Proteolysis::Pool';
 ok     !$flask->shift_pool;
