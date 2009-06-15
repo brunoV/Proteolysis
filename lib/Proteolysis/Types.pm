@@ -4,11 +4,10 @@ use warnings;
 use MooseX::Types -declare => [ qw{
     Set Fragment Pool MutablePool Protease Protein Pool DB Percentage
 }];
-use Bio::Protease;
-use Bio::Seq;
+use lib qw(/home/brunov/lib/Proteolysis/lib);
+use Class::Autouse qw(Bio::Protease);
 
 role_type  Set,         { role  => 'KiokuDB::Set'               };
-class_type Fragment,    { class => 'Proteolysis::Fragment'      };
 class_type Pool,        { class => 'Proteolysis::Pool'          };
 class_type MutablePool, { class => 'Proteolysis::Pool::Mutable' };
 class_type Protease,    { class => 'Bio::Protease'              };
@@ -22,8 +21,6 @@ subtype Percentage,
 
 coerce Protease,
     from 'Str',
-    via {
-        Bio::Protease->new(specificity => $_);
-    };
+    via { Bio::Protease->new(specificity => $_) };
 
 __PACKAGE__->meta->make_immutable;
