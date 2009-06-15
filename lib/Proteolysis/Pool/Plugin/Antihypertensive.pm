@@ -1,6 +1,6 @@
 package Proteolysis::Pool::Plugin::Antihypertensive;
 use Moose::Role;
-use MooseX::Types::Moose qw(HashRef Str);
+use MooseX::Types::Moose qw(HashRef Num Undef);
 use Statistics::Descriptive;
 use autodie qw(open);
 use Dir::Self;
@@ -24,6 +24,12 @@ has ace_stats => (
         ace_count        => 'count',
         ace_distribution => 'frequency_distribution',
     }
+);
+
+has mean_inverse_ace => (
+    is  => 'ro',
+    isa => Num|Undef,
+    lazy_build => 1,
 );
 
 sub _build_db {
@@ -70,7 +76,7 @@ sub ace {
     else { return }
 }
 
-sub mean_inverse_ace {
+sub _build_mean_inverse_ace {
     my $self = shift;
 
     my $inverse_mean;
