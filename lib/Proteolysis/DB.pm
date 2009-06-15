@@ -3,14 +3,12 @@ use Moose;
 extends 'KiokuX::Model';
 use namespace::autoclean;
 use KiokuDB::TypeMap;
+use KiokuDB::TypeMap::Entry::Naive;
 use KiokuDB::TypeMap::Entry::Callback;
 use Bio::Protease;
 
-has '+extra_args' => (
-    default => sub { {
-        create  => 1,
-        log_auto_remove => 1,
-        typemap => KiokuDB::TypeMap->new(
+has '+typemap' => (
+    default => sub { KiokuDB::TypeMap->new(
             entries => {
                 'Bio::Protease' => KiokuDB::TypeMap::Entry::Callback->new(
                     collapse => sub {
@@ -32,8 +30,18 @@ has '+extra_args' => (
                         return $object;
                     }
                 ),
+
+                'Statistics::Descriptive::Full' => KiokuDB::TypeMap::Entry::Naive->new,
+                'Module::Pluggable::Object'     => KiokuDB::TypeMap::Entry::Naive->new,
             }
         ),
+    }
+);
+
+has '+extra_args' => (
+    default => sub { {
+        create  => 1,
+        log_auto_remove => 1,
     } }
 );
 
