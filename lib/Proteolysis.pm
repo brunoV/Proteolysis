@@ -1,7 +1,7 @@
 package Proteolysis;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Moose;
-use Proteolysis::Types   qw(Protease Pool MutablePool);
+use Proteolysis::Types   qw(Protease Pool MutablePool Quotient);
 use MooseX::Types::Moose qw(Num Str);
 use KiokuDB::Class;
 use namespace::autoclean;
@@ -42,7 +42,7 @@ sub _build__last_pool {
 
 has detail_level => (
     is      => 'rw',
-    isa     => Num,
+    isa     => Quotient,
     default => 1,
 );
 

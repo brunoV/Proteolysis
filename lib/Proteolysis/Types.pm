@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use MooseX::Types -declare => [ qw{
     Set Fragment Pool MutablePool Protease Protein Pool DB Percentage
+    Quotient
 }];
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 use Class::Autouse qw(Bio::Protease);
@@ -17,7 +18,12 @@ subtype Protein, as 'Str';
 subtype Percentage,
     as 'Num',
     where { $_[0] >= 0 && $_[0] <= 100 },
-    message { "% of hydrolysis should be a number between 0 and 100\n" };
+    message { "Percentage should be a number between 0 and 100\n" };
+
+subtype Quotient,
+    as 'Num',
+    where { $_[0] >= 0 && $_[0] <= 1 },
+    message { "Quotient should be a number between 0 and 1" };
 
 coerce Protease,
     from 'Str',

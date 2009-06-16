@@ -37,3 +37,7 @@ $flask = Proteolysis->new(
 );
 
 lives_ok { $flask->digest } 'digest with empty pool lives';
+
+lives_ok { $flask->detail_level(0.25) } 'Valid detail level';
+
+throws_ok { $flask->detail_level(5) } qr/Quotient should be a number/;
