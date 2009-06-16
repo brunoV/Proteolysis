@@ -15,11 +15,8 @@ with qw(
     Proteolysis::Role::DH MooseX::Object::Pluggable
 );
 
-has '+substrates' => ( traits => [qw(KiokuDB::Lazy)] );
-
-has '+length_stats' => (
-    traits  => [qw(KiokuDB::DoNotSerialize)],
-);
+has '+substrates'   => ( traits => [qw(KiokuDB::Lazy)] );
+has '+length_stats' => ( traits => [qw(KiokuDB::Lazy)] );
 
 has '+previous' => (
     isa      => Pool,
