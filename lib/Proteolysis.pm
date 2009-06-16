@@ -53,22 +53,34 @@ sub digest {
     $self->protease && $self->_last_pool && $self->_last_pool->substrates
         or return;
 
-    my $d = int( 1 / $self->detail_level );
-
     while ($times) {
 
         my $did_cut = $self->_cut();
         return unless ($did_cut);
 
-        my $skip = --$times % $d;
+        my $save_pool = $self->_decide_whether_to_save_pool(--$times);
 
-        if ($did_cut and !$skip) {
+        if ($did_cut and $save_pool) {
             my $new_pool = $self->_last_pool->clone_immutable;
             $self->_add_pool($new_pool);
         }
     }
 
     return 1;
+}
+
+sub _decide_whether_to_save_pool {
+    my ($self, $times) = @_;
+
+    # returns true unless $times is divisible by $skip_every, which will
+    # happen once every $skip_every times, at a rate equal to
+    # (1/$self->detail_level).
+
+    my $skip_every = int( 1 / $self->detail_level );
+
+    my $skip = $times % $skip_every;
+
+    return !$skip;
 }
 
 sub _shift_pool {
