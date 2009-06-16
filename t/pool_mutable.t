@@ -5,7 +5,7 @@ use Test::More qw(no_plan);
 use Test::Exception;
 use Scalar::Util qw(refaddr);
 
-use_ok 'Proteolysis::Pool::Immutable';
+use_ok 'Proteolysis::Pool::Mutable';
 
 my $seq = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
 
