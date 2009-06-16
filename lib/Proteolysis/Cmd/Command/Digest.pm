@@ -129,7 +129,7 @@ sub generate_id {
 
     # key: basename:amount-protease-dh-snapshots
     my $id = sprintf(
-        "%s-n:%s-%s-dh:%s-s:%s",
+        "%s-n:%i-%s-dh:%d-s:%i",
         $basename,        # input file
         $self->amount,    # molecules
         $self->protease,  # specificity
