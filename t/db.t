@@ -10,13 +10,13 @@ use Proteolysis::Pool;
 use ok 'Proteolysis::DB';
 
 unlink 'db';
-
 my $dbname = 'db';
 my $db;
 
 lives_ok {
     $db = Proteolysis::DB->new(
-        dsn => 'bdb:dir=' . $dbname,
+        dsn    => 'dbi:SQLite:dbname=' . $dbname,
+        extra_args => { create => 1 },
     );
 
 } 'Database instantiation';
@@ -54,3 +54,6 @@ my $id;
     isa_ok $pool,           'Proteolysis::Pool';
     isa_ok $pool->previous, 'Proteolysis::Pool';
 }
+
+# Cleanup
+unlink 'db';

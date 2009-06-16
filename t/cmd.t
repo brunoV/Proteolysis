@@ -41,6 +41,6 @@ $result = test_app(Proteolysis::Cmd => [ qw(digest -h 5 --dry-run --silent -i), 
 is $result->output, '';
 
 # Cleanup
-rmtree('testdb');
+unlink('testdb');
 
 ok 1;

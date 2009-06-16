@@ -46,7 +46,8 @@ sub _build_backend {
     my $self = shift;
 
     my $backend = Proteolysis::DB->new(
-        dsn => 'bdb:dir=' . $self->db,
+        dsn => 'dbi:SQLite:dbname=' . $self->db,
+
         extra_args => { create => $self->create },
     );
 
