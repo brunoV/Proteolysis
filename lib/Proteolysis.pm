@@ -23,11 +23,7 @@ has pool => (
     traits   => [qw(KiokuDB::Lazy)],
     required => 1,
     isa      => Pool,
-    clearer  => 'clear_pool',
-    handles  => {
-        clear_previous_pools => 'clear_previous',
-        dh                   => 'dh',
-    }
+    handles  => ['dh'],
 );
 
 has _last_pool => (

@@ -28,13 +28,6 @@ my @products         = sort keys %{$flask->pool->substrates};
 
 is_deeply(\@products, \@correct_products);
 
-lives_ok { $flask->clear_previous_pools };
-
-# Check clearing history.
-isa_ok  $flask->pool, 'Proteolysis::Pool';
-ok     !$flask->pool->previous;
-
-
 # Some edge case checking
 undef for ($flask, $pool);
 
