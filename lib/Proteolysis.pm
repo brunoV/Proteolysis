@@ -31,9 +31,10 @@ has pool => (
 );
 
 has _last_pool => (
-    is => 'rw',
+    is  => 'rw',
     isa => MutablePool,
     lazy_build => 1,
+    traits     => [qw(KiokuDB::DoNotSerialize)],
 );
 
 sub _build__last_pool {
