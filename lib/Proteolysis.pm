@@ -137,10 +137,10 @@ sub _cut_random_fragment {
 
     $pool->take_substrate( $fragment );
 
-    my @sites = $protease->cleavage_sites( $fragment );
-    my $site  = $sites[rand @sites];
+    my @sites        = $protease->cleavage_sites( $fragment );
+    my $random_site  = $sites[rand @sites];
 
-    my ($head, $tail) = $protease->cut($fragment, $site);
+    my ($head, $tail) = $protease->cut($fragment, $random_site);
 
     return $head, $tail;
 }
