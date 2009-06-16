@@ -3,6 +3,7 @@ use Modern::Perl;
 use lib qw(/home/brunov/lib/Proteolysis/lib);
 
 use ok 'Proteolysis';
+use Proteolysis::Pool;
 
 my $seq   = 'MAAAEELLKRKARPYWGGNGCCVIKPWR';
 my $pool  = Proteolysis::Pool->new(
