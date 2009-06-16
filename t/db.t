@@ -34,7 +34,7 @@ my $flask = Proteolysis->new(
     pool     => $pool,
 );
 
-$flask->add_pool($pool);
+$flask->_add_pool($pool);
 
 my $id;
 

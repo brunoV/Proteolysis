@@ -17,7 +17,7 @@ lives_ok { $flask->load_plugin('Antihypertensive') };
 ok does_role($flask->pool, 'Proteolysis::Pool::Plugin::Antihypertensive');
 
 # Also check that it applies to all subsequently added pools.
-$flask->add_pool( Proteolysis::Pool->new );
+$flask->_add_pool( Proteolysis::Pool->new );
 
 lives_ok { $flask->load_plugin('Antihypertensive') };
 ok does_role($flask->pool, 'Proteolysis::Pool::Plugin::Antihypertensive');

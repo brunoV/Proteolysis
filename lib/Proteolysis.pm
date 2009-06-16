@@ -50,26 +50,6 @@ has detail_level => (
     default => 1,
 );
 
-sub shift_pool {
-    my $self = shift;
-    my ( $first, $second ) = ( $self->pool, $self->pool->previous );
-    return unless ( defined $second );
-    $self->_set_pool($second);
-    return $first;
-}
-
-sub add_pool {
-    my ($self, $pool) = @_;
-
-    my $previous = $self->pool;
-
-    if (defined $previous) {
-        $pool->previous($previous);
-    }
-
-    $self->_set_pool($pool);
-}
-
 sub digest {
     my ($self, $times) = @_;
     $times //= -1;
@@ -88,11 +68,31 @@ sub digest {
 
         if ($did_cut and !$skip) {
             my $new_pool = $self->_last_pool->clone_immutable;
-            $self->add_pool($new_pool);
+            $self->_add_pool($new_pool);
         }
     }
 
     return 1;
+}
+
+sub _shift_pool {
+    my $self = shift;
+    my ( $first, $second ) = ( $self->pool, $self->pool->previous );
+    return unless ( defined $second );
+    $self->_set_pool($second);
+    return $first;
+}
+
+sub _add_pool {
+    my ($self, $pool) = @_;
+
+    my $previous = $self->pool;
+
+    if (defined $previous) {
+        $pool->previous($previous);
+    }
+
+    $self->_set_pool($pool);
 }
 
 sub _cut {
