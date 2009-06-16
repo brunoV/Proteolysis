@@ -12,7 +12,7 @@ use File::Basename qw(basename);
 use Class::Autouse qw(Proteolysis Proteolysis::Pool Bio::SeqIO);
 
 extends qw(Proteolysis::Cmd::Base);
-with qw(MooseX::SimpleConfig Proteolysis::Cmd::Protease);
+with qw(MooseX::SimpleConfig Proteolysis::Cmd::Protease KiokuDB::Role::UUIDs);
 
 has protein => (
     isa => File,
@@ -129,13 +129,17 @@ sub generate_id {
 
     # key: basename:amount-protease-dh-snapshots
     my $id = sprintf(
-        "%s-n:%i-%s-dh:%d-s:%i",
+        "%s-n:%i-%s-dh:%d-s:%i-",
         $basename,        # input file
         $self->amount,    # molecules
         $self->protease,  # specificity
         $self->dh,        # dh wanted (or should I put achieved?)
         $self->snapshots, # snapshots
     );
+
+    my $uuid = generate_uuid();
+
+    $id .= $uuid;
 
     return $id;
 }
@@ -163,31 +167,18 @@ sub store  {
         $self->create(1);
     };
 
-    my $s = $self->backend->new_scope;
-
-    my $tries  = 0;
-    my $id     = $self->generate_id;
-    my $exists = 1;
-
-    while ( $exists ) {
-        $exists = $self->backend->lookup( $id . '-' . ++$tries );
-    }
-
-    my $actual_id;
+    my $s  = $self->backend->new_scope;
+    my $id = $self->generate_id;
 
     my $e = do {
         local $@;
-
-        $actual_id = eval {
-            $self->backend->store( $id . '-' . $tries => $flask )
-        };
-
+        eval { $self->backend->store( $id => $flask ) };
         $@;
     };
 
     if ( $e ) { $self->e("storage failed: $e"); return }
 
-    $self->s('id: ', $actual_id);
+    $self->s('id: ', $id);
 
 }
 
