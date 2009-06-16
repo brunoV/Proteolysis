@@ -14,7 +14,6 @@ has protease => (
     traits   => [qw(KiokuDB::Lazy)],
     required => 1,
     coerce   => 1,
-    handles  => [qw(cleavage_sites)],
 );
 
 has pool => (
