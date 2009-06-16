@@ -11,6 +11,7 @@ with qw(MooseX::Object::Pluggable);
 has protease => (
     is       => 'ro',
     isa      => Protease,
+    traits   => [qw(KiokuDB::Lazy)],
     required => 1,
     coerce   => 1,
     handles  => [qw(cleavage_sites)],
