@@ -6,7 +6,6 @@ use Proteolysis::Types             qw(Pool Fragment);
 use MooseX::Types::Common::Numeric qw(PositiveInt);
 use KiokuDB::Class;
 use namespace::autoclean;
-require Proteolysis::Pool::Mutable;
 
 extends 'Proteolysis::PoolI';
 
@@ -38,6 +37,7 @@ sub _build_substrate_count {
 sub clone_mutable {
     my $self = shift;
 
+    eval 'use Proteolysis::Pool::Mutable';
     my $copy = Proteolysis::Pool::Mutable->new(
         substrates => { %{$self->substrates} },
     );

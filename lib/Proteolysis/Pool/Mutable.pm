@@ -125,6 +125,7 @@ sub clone_immutable {
         $copy->add_substrate($product => $amount);
     }
 
+    eval 'use Proteolysis::Pool';
     my $immutable_copy = Proteolysis::Pool->new(
         substrates => { %{$copy->substrates} },
     );
