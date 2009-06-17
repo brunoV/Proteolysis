@@ -83,8 +83,6 @@ sub build_flask {
         pool     => $pool,
     );
 
-    $flask->protease->name( $self->protease );
-
     my $detail_level = $self->calculate_detail_level($flask);
     $flask->detail_level($detail_level);
 

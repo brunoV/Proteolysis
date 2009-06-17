@@ -4,37 +4,14 @@ extends 'KiokuX::Model';
 use namespace::autoclean;
 use KiokuDB::TypeMap;
 use KiokuDB::TypeMap::Entry::Naive;
-use KiokuDB::TypeMap::Entry::Callback;
 use Bio::Protease;
 
 has '+typemap' => (
     default => sub { KiokuDB::TypeMap->new(
-            entries => {
-                'Bio::Protease' => KiokuDB::TypeMap::Entry::Callback->new(
-                    collapse => sub {
-                        my $object = shift;
-
-                        my $name = $object->name // 'unknown';
-
-                        return $name;
-                    },
-
-                    expand => sub {
-                        my ($class, $collapsed) = @_;
-
-                        my $object = $class->new(
-                            specificity => $collapsed,
-                            name        => $collapsed,
-                        );
-
-                        return $object;
-                    }
-                ),
-
-                'Statistics::Descriptive::Full' => KiokuDB::TypeMap::Entry::Naive->new,
-                'Module::Pluggable::Object'     => KiokuDB::TypeMap::Entry::Naive->new,
-            }
-        ),
+        entries => {
+            'Statistics::Descriptive::Full' => KiokuDB::TypeMap::Entry::Naive->new,
+            'Module::Pluggable::Object'     => KiokuDB::TypeMap::Entry::Naive->new,
+        }),
     }
 );
 
@@ -48,8 +25,8 @@ sub BUILDARGS {
             is_nullable => 1,
             extract => sub {
                 my $obj = shift;
-                if (ref $obj eq 'Bio::Protease') {
-                    return $obj->name;
+                if (ref $obj eq 'Proteolysis') {
+                    return $obj->protease->specificity;
                 }
             },
         },

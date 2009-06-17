@@ -62,7 +62,7 @@ sub analyze {
         my $ace_count = $pool->ace_count        // 0;
         my $l         = $pool->mean_length;
         my $n         = $pool->substrate_count;
-        my $protease  = $entry->protease->name;
+        my $protease  = $entry->protease->specificity;
 
         $self->p(sprintf "%-6.1f\t%-11.5f\t%-10i\t%-9.2f\t%-6i\t%s\n", $dh, $ace, $ace_count, $l, $n, $protease);
 
