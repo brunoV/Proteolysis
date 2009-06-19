@@ -16,14 +16,35 @@ has db => (
 
 has ace_stats => (
     is         => 'ro',
+    traits     => [qw(KiokuDB::DoNotSerialize)],
     lazy_build => 1,
     handles    => {
-        mean_ace         => 'mean',
-        max_ace          => 'max',
-        min_ace          => 'min',
-        ace_count        => 'count',
         ace_distribution => 'frequency_distribution',
     }
+);
+
+has mean_ace => (
+    is   => 'ro',
+    lazy => 1,
+    default => sub { shift->ace_stats->mean },
+);
+
+has max_ace => (
+    is   => 'ro',
+    lazy => 1,
+    default => sub { shift->ace_stats->max },
+);
+
+has min_ace => (
+    is   => 'ro',
+    lazy => 1,
+    default => sub { shift->ace_stats->min },
+);
+
+has ace_count => (
+    is   => 'ro',
+    lazy => 1,
+    default => sub { shift->ace_stats->count },
 );
 
 has mean_inverse_ace => (

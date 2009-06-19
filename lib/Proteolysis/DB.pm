@@ -9,8 +9,7 @@ use Bio::Protease;
 has '+typemap' => (
     default => sub { KiokuDB::TypeMap->new(
         entries => {
-            'Statistics::Descriptive::Full' => KiokuDB::TypeMap::Entry::Naive->new,
-            'Module::Pluggable::Object'     => KiokuDB::TypeMap::Entry::Naive->new,
+            'Module::Pluggable::Object' => KiokuDB::TypeMap::Entry::Naive->new,
         }),
     }
 );

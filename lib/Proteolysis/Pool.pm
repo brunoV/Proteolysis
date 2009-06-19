@@ -15,7 +15,7 @@ with qw(
 );
 
 has '+substrates'   => ( traits => [qw(KiokuDB::Lazy)] );
-has '+length_stats' => ( traits => [qw(KiokuDB::Lazy)] );
+has '+length_stats' => ( traits => [qw(KiokuDB::DoNotSerialize)] );
 
 has '+previous' => (
     isa      => Pool,
