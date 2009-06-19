@@ -11,19 +11,19 @@ augment run => sub {
 
     my $s = $self->backend->new_scope;
 
-    $$args[0] //= '.*'; # If no id is specified, match everything
+    $args->[0] //= '.*'; # If no id is specified, match everything
 
     my @regexes;
 
     # Try and load entries supposing the arguments are exact ids
     foreach my $arg (@$args) {
         my $entry = $self->backend->lookup($arg);
-        unless ( defined $entry ) {
-            push @regexes, $arg;
-            next;
+
+        if ( defined $entry ) {
+            $self->analyze($entry);
         }
 
-        $self->analyze($entry);
+        else { push @regexes, $arg; }
     }
 
     # If any lookup failed, suppose the arg was a regex, and scan the
@@ -47,7 +47,7 @@ sub analyze {
     my ($self, $entry) = @_;
 
     $self->p( "#", $self->backend->object_to_id($entry), "\n" );
-    $self->p("# % dh\tinverse_ace\tamount_ace\tmean_length\tamount\tproteae\n");
+    $self->p("# % dh\tinverse_ace\tamount_ace\tmean_length\tamount\tprotease\n");
 
     my $pool = $entry->pool;
     my $updated;
