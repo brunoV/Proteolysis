@@ -1,4 +1,4 @@
-use Test::More tests => 13;
+use Test::More tests => 16;
 use App::Cmd::Tester;
 
 use lib qw(/home/brunov/lib/Proteolysis/lib);
@@ -39,6 +39,13 @@ like $result->stdout, qr/cuts made/;
 $result = test_app(Proteolysis::Cmd => [ qw(digest -h 5 --dry-run --silent -i), $test_file ]);
 
 is $result->output, '';
+
+# Analyze ace
+
+$result = test_app(Proteolysis::Cmd => [ qw(ace --db testdb) ]);
+like   $result->stderr, qr/completed in/;
+like   $result->stderr, qr/storing/i;
+like   $result->stdout, qr/amount_ace/;
 
 # Cleanup
 unlink('testdb');
